@@ -1,0 +1,25 @@
+import express from "express";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc.js";
+import timezone from "dayjs/plugin/timezone.js";
+
+const app = express();
+
+app.use(cors({ credentials: true, origin: "http://localhost:5173" }));
+app.use(express.json());
+
+// Set dayjs timezone
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send("Something went wrong!");
+});
+
+export default app;
