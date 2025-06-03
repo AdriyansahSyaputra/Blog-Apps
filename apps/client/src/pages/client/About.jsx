@@ -1,12 +1,12 @@
 import { Helmet } from "react-helmet-async";
 import Navbar from "../../components/Templates/client/Navbar";
 import Footer from "../../components/Templates/client/Footer";
-import Index from "../../components/Layouts/client/Articles/Index";
+import Index from "../../components/Layouts/client/About/Index";
 
-const Articles = () => {
+const About = () => {
   return (
     <>
-      <Helmet title="Articles | Client" />
+      <Helmet title="Blog | About" />
 
       <Navbar />
       <Index />
@@ -15,4 +15,4 @@ const Articles = () => {
   );
 };
 
-export default Articles;
+export default About;
