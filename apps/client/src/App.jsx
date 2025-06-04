@@ -6,6 +6,9 @@ import HomeDashboard from "./pages/dashboard/HomeDashboard";
 import Contact from "./pages/client/Contact";
 import Post from "./pages/dashboard/Post";
 import User from "./pages/dashboard/User";
+import Categories from "./pages/dashboard/Categories";
+import SettingsPage from "./pages/dashboard/Settings";
+import CommentPage from "./pages/dashboard/CommentPage";
 
 function App() {
   return (
@@ -21,6 +24,9 @@ function App() {
         <Route path="/dashboard" element={<HomeDashboard />} />
         <Route path="/dashboard/posts" element={<Post />} />
         <Route path="/dashboard/users" element={<User />} />
+        <Route path="/dashboard/categories" element={<Categories />} />
+        <Route path="/dashboard/comments" element={<CommentPage />} />
+        <Route path="/dashboard/settings" element={<SettingsPage />} />
       </Routes>
     </Router>
   );

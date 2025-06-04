@@ -23,8 +23,6 @@ const Sidebar = ({
     { id: "dashboard", label: "Dashboard", icon: Home, badge: null },
     { id: "posts", label: "Posts", icon: FileText, badge: "24" },
     { id: "users", label: "Users", icon: Users, badge: null },
-    { id: "comments", label: "Comments", icon: MessageSquare, badge: "8" },
-    { id: "analytics", label: "Analytics", icon: BarChart3, badge: null },
     { id: "media", label: "Media", icon: Image, badge: null },
     { id: "categories", label: "Categories", icon: Tag, badge: null },
     { id: "settings", label: "Settings", icon: Settings, badge: null },
