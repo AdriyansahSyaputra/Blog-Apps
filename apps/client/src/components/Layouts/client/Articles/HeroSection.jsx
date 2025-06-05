@@ -3,7 +3,7 @@ import { Search, Sliders } from "lucide-react";
 const HeroSection = ({ darkMode }) => {
   return (
     <div
-      className={`py-20 ${darkMode ? "bg-gray-800" : "bg-white"} border-b ${
+      className={`py-36 ${darkMode ? "bg-gray-800" : "bg-white"} border-b ${
         darkMode ? "border-gray-700" : "border-gray-200"
       }`}
     >

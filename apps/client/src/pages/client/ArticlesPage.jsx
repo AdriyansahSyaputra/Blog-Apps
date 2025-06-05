@@ -109,6 +109,7 @@ const ArticlesPage = () => {
       <Helmet title="Articles | Client" />
 
       <Navbar />
+
       <HeroSection darkMode={darkMode} />
 
       <main

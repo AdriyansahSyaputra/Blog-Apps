@@ -7,8 +7,9 @@ import {
   Home,
   BookText,
   PenLine,
-  Tags,
   Sparkles,
+  SquareUser,
+  Info,
 } from "lucide-react";
 import { useTheme } from "../../../context/ThemeContext";
 
@@ -35,11 +36,11 @@ const Navbar = () => {
       icon: <BookText className="h-5 w-5" />,
       path: "/articles",
     },
-    { name: "Write", icon: <PenLine className="h-5 w-5" />, path: "/write" },
+    { name: "About", icon: <Info className="h-5 w-5" />, path: "/about" },
     {
-      name: "Categories",
-      icon: <Tags className="h-5 w-5" />,
-      path: "/categories",
+      name: "Contact",
+      icon: <SquareUser className="h-5 w-5" />,
+      path: "/contact",
     },
   ];
 
