@@ -1,24 +1,24 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Home from "./pages/client/Home";
-import Articles from "./pages/client/Articles";
+import HomePage from "./pages/client/HomePage";
 import About from "./pages/client/About";
 import HomeDashboard from "./pages/dashboard/HomeDashboard";
-import Contact from "./pages/client/Contact";
 import Post from "./pages/dashboard/Post";
 import User from "./pages/dashboard/User";
 import Categories from "./pages/dashboard/Categories";
 import SettingsPage from "./pages/dashboard/Settings";
 import CommentPage from "./pages/dashboard/CommentPage";
+import ContactPage from "./pages/client/ContactPage";
+import ArticlesPage from "./pages/client/ArticlesPage";
 
 function App() {
   return (
     <Router>
       <Routes>
         {/* Client Routes */}
-        <Route path="/" element={<Home />} />
-        <Route path="/articles" element={<Articles />} />
+        <Route path="/" element={<HomePage />} />
+        <Route path="/articles" element={<ArticlesPage />} />
         <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact/>} />
+        <Route path="/contact" element={<ContactPage />} />
 
         {/* Dashboard Routes */}
         <Route path="/dashboard" element={<HomeDashboard />} />
