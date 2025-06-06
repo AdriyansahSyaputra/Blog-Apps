@@ -137,7 +137,7 @@ const Post = () => {
 
   return (
     <>
-    <Helmet title="Dashboard | Post" />
+      <Helmet title="Dashboard | Post" />
 
       <div
         className={`min-h-screen transition-all duration-300 ${
@@ -157,7 +157,7 @@ const Post = () => {
         {/* Main Content */}
         <div
           className={`transition-all duration-300 ${
-            sidebarOpen ? "lg:ml-64" : "ml-0"
+            sidebarOpen ? "lg:ml-64" : "ml-0 lg:ml-20"
           }`}
         >
           {/* Topbar */}

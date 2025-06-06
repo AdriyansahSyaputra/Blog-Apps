@@ -30,12 +30,12 @@ const Topbar = ({ darkMode, toggleTheme, sidebarOpen, setSidebarOpen }) => {
           : "bg-white/80 border-gray-200/50"
       }`}
     >
-      <div className="flex items-center justify-between h-16 px-6">
-        <div className="flex items-center space-x-4">
-          {/* Hamburger Menu */}
+      <div className="flex items-center justify-between h-16 px-4 sm:px-6">
+        <div className="flex items-center space-x-2 sm:space-x-4">
+          {/* Hamburger Menu - Show on all screen sizes */}
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className={`p-2 rounded-lg transition-colors duration-200 lg:hidden ${
+            className={`p-2 rounded-lg transition-colors duration-200 ${
               darkMode
                 ? "hover:bg-gray-800 text-gray-300"
                 : "hover:bg-gray-100 text-gray-600"
@@ -44,8 +44,8 @@ const Topbar = ({ darkMode, toggleTheme, sidebarOpen, setSidebarOpen }) => {
             <Menu className="w-5 h-5" />
           </button>
 
-          {/* Search Bar */}
-          <div className="relative">
+          {/* Search Bar - Responsive width */}
+          <div className="relative flex-1 sm:flex-none">
             <Search
               className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${
                 darkMode ? "text-gray-400" : "text-gray-500"
@@ -53,8 +53,8 @@ const Topbar = ({ darkMode, toggleTheme, sidebarOpen, setSidebarOpen }) => {
             />
             <input
               type="text"
-              placeholder="Search posts, users..."
-              className={`pl-10 pr-4 py-2 w-80 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 ${
+              placeholder="Search..."
+              className={`pl-10 pr-4 py-2 w-full sm:w-64 md:w-80 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 ${
                 darkMode
                   ? "bg-gray-800/50 border-gray-700 text-white placeholder-gray-400"
                   : "bg-gray-50/50 border-gray-200 text-gray-800 placeholder-gray-500"
@@ -63,7 +63,7 @@ const Topbar = ({ darkMode, toggleTheme, sidebarOpen, setSidebarOpen }) => {
           </div>
         </div>
 
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2 sm:space-x-4">
           {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
@@ -118,7 +118,9 @@ const Topbar = ({ darkMode, toggleTheme, sidebarOpen, setSidebarOpen }) => {
               <ChevronDown
                 className={`w-4 h-4 transition-transform duration-200 ${
                   showProfileMenu ? "rotate-180" : ""
-                } ${darkMode ? "text-gray-300" : "text-gray-600"}`}
+                } ${
+                  darkMode ? "text-gray-300" : "text-gray-600"
+                } hidden sm:block`}
               />
             </button>
             <ProfileDropdown

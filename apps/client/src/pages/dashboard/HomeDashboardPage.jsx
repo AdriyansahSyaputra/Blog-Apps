@@ -7,7 +7,7 @@ import Topbar from "../../components/Templates/dashboard/Topbar";
 import { useTheme } from "../../context/ThemeContext";
 import { useState } from "react";
 
-const HomeDashboard = () => {
+const HomeDashboardPage = () => {
   const { darkMode, toggleTheme } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeMenu, setActiveMenu] = useState("dashboard");
@@ -32,7 +32,7 @@ const HomeDashboard = () => {
         {/* Main Content */}
         <div
           className={`transition-all duration-300 ${
-            sidebarOpen ? "lg:ml-64" : "ml-0"
+            sidebarOpen ? "lg:ml-64" : "ml-0 lg:ml-20"
           }`}
         >
           {/* Topbar */}
@@ -82,4 +82,4 @@ const HomeDashboard = () => {
   );
 };
 
-export default HomeDashboard;
+export default HomeDashboardPage;

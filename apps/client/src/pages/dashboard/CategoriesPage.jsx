@@ -17,7 +17,7 @@ import {
 import CategoryCard from "../../components/Layouts/dashboard/Category/CategoryCard";
 import StatsCard from "../../components/Layouts/dashboard/Category/StatsCard";
 
-const Categories = () => {
+const CategoriesPage = () => {
   const { darkMode, toggleTheme } = useTheme();
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState("grid");
@@ -30,7 +30,7 @@ const Categories = () => {
   const stats = [
     {
       icon: Tag,
-      title: "Total Categories",
+      title: "Total Pagge",
       value: "24",
       change: 15,
       color: "bg-gradient-to-r from-blue-500 to-purple-600",
@@ -209,7 +209,7 @@ const Categories = () => {
         {/* Main Content */}
         <div
           className={`transition-all duration-300 ${
-            sidebarOpen ? "lg:ml-64" : "ml-0"
+            sidebarOpen ? "lg:ml-64" : "ml-0 lg:ml-20"
           }`}
         >
           {/* Topbar */}
@@ -367,4 +367,4 @@ const Categories = () => {
   );
 };
 
-export default Categories;
+export default CategoriesPage;
