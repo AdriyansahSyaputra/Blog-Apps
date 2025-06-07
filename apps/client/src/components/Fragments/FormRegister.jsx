@@ -1,17 +1,62 @@
 import { ChevronRight, Mail, UserIcon, Lock, Phone } from "lucide-react";
 import InputField from "../Elements/Input/InputField";
+import axios from "axios";
+import { useState } from "react";
 
 const FormRegister = ({
   darkMode,
-  registerData,
-  handleRegisterChange,
-  handleRegisterSubmit,
   showPassword,
   setShowPassword,
   setIsLogin,
 }) => {
+  const [form, setForm] = useState({
+    name: "",
+    username: "",
+    email: "",
+    phone: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  const [errors, setErrors] = useState({});
+  const [success, setSuccess] = useState(false);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErrors({});
+    setSuccess("");
+
+    try {
+      const res = await axios.post("/api/auth/register", form);
+
+      setSuccess(res.data.message);
+      setForm({
+        name: "",
+        username: "",
+        email: "",
+        phone: "",
+        password: "",
+        confirmPassword: "",
+      });
+    } catch (err) {
+      if (err.response && err.response.data.errors) {
+        setErrors(err.response.data.errors);
+      } else {
+        setErrors({ general: "An error occurred. Please try again." });
+      }
+    }
+  };
+
   return (
-    <form onSubmit={handleRegisterSubmit} className="p-6">
+    <form onSubmit={handleSubmit} className="p-6">
+      {success && <p className="text-green-600">{success}</p>}
+      {errors.general && <p className="text-red-600">{errors.general}</p>}
+
       {/* Name */}
       <div className="mb-4">
         <InputField
@@ -19,12 +64,13 @@ const FormRegister = ({
           type="text"
           id="register-name"
           name="name"
-          value={registerData.name}
-          onChange={handleRegisterChange}
+          value={form.name}
+          onChange={handleChange}
           placeholder="John Doe"
           label="Name"
           icon={<UserIcon size={18} />}
         />
+        {errors.name && <p className="text-red-600 text-sm">{errors.name}</p>}
       </div>
 
       {/* Username */}
@@ -34,12 +80,15 @@ const FormRegister = ({
           type="text"
           id="register-username"
           name="username"
-          value={registerData.username}
-          onChange={handleRegisterChange}
+          value={form.username}
+          onChange={handleChange}
           placeholder="johndoe"
           label="Username"
           icon={<UserIcon size={18} />}
         />
+        {errors.username && (
+          <p className="text-red-600 text-sm">{errors.username}</p>
+        )}
       </div>
 
       {/* Email */}
@@ -49,12 +98,13 @@ const FormRegister = ({
           type="email"
           id="register-email"
           name="email"
-          value={registerData.email}
-          onChange={handleRegisterChange}
+          value={form.email}
+          onChange={handleChange}
           placeholder="Email"
           label="Email"
           icon={<Mail size={18} />}
         />
+        {errors.email && <p className="text-red-600 text-sm">{errors.email}</p>}
       </div>
 
       {/* Phone */}
@@ -64,12 +114,13 @@ const FormRegister = ({
           type="tel"
           id="register-phone"
           name="phone"
-          value={registerData.phone}
-          onChange={handleRegisterChange}
+          value={form.phone}
+          onChange={handleChange}
           placeholder="123-456-7890"
           label="Phone"
           icon={<Phone size={18} />}
         />
+        {errors.phone && <p className="text-red-600 text-sm">{errors.phone}</p>}
       </div>
 
       {/* Password */}
@@ -79,21 +130,17 @@ const FormRegister = ({
           type={showPassword ? "text" : "password"}
           id="register-password"
           name="password"
-          value={registerData.password}
-          onChange={handleRegisterChange}
+          value={form.password}
+          onChange={handleChange}
           placeholder="Password"
           label="Password"
           icon={<Lock size={18} />}
           showPassword={showPassword}
           setShowPassword={setShowPassword}
         />
-        <p
-          className={`mt-2 text-xs ${
-            darkMode ? "text-gray-400" : "text-gray-500"
-          }`}
-        >
-          Must be at least 8 characters
-        </p>
+        {errors.password && (
+          <p className="text-red-600 text-sm">{errors.password}</p>
+        )}
       </div>
 
       {/* Confirm Password */}
@@ -103,14 +150,17 @@ const FormRegister = ({
           type={showPassword ? "text" : "password"}
           id="register-confirm-password"
           name="confirmPassword"
-          value={registerData.confirmPassword}
-          onChange={handleRegisterChange}
+          value={form.confirmPassword}
+          onChange={handleChange}
           placeholder="Confirm Password"
           label="Confirm Password"
           icon={<Lock size={18} />}
           showPassword={showPassword}
           setShowPassword={setShowPassword}
         />
+        {errors.confirmPassword && (
+          <p className="text-red-600 text-sm">{errors.confirmPassword}</p>
+        )}
       </div>
 
       <div className="flex items-start mb-6">
@@ -144,6 +194,7 @@ const FormRegister = ({
             Terms and Conditions
           </a>
         </label>
+        {errors.terms && <p className="text-red-600 text-sm">{errors.terms}</p>}
       </div>
 
       <button

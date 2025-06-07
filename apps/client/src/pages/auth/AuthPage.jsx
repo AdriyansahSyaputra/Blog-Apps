@@ -9,32 +9,16 @@ const AuthPage = () => {
   const { darkMode, toggleTheme } = useTheme();
   const [showPassword, setShowPassword] = useState(false);
   const [loginData, setLoginData] = useState({ email: "", password: "" });
-  const [registerData, setRegisterData] = useState({
-    name: "",
-    email: "",
-    password: "",
-  });
 
   const handleLoginChange = (e) => {
     const { name, value } = e.target;
     setLoginData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleRegisterChange = (e) => {
-    const { name, value } = e.target;
-    setRegisterData((prev) => ({ ...prev, [name]: value }));
-  };
-
   const handleLoginSubmit = (e) => {
     e.preventDefault();
     console.log("Login data:", loginData);
     // Handle login logic
-  };
-
-  const handleRegisterSubmit = (e) => {
-    e.preventDefault();
-    console.log("Register data:", registerData);
-    // Handle register logic
   };
 
   return (
@@ -116,9 +100,6 @@ const AuthPage = () => {
 
           <FormRegister
             darkMode={darkMode}
-            registerData={registerData}
-            handleRegisterChange={handleRegisterChange}
-            handleRegisterSubmit={handleRegisterSubmit}
             showPassword={showPassword}
             setShowPassword={setShowPassword}
             setIsLogin={setIsLogin}
