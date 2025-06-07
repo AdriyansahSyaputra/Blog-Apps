@@ -14,8 +14,11 @@ const InputField = ({
   icon,
   showPassword,
   setShowPassword,
+  showConfirmPassword,
+  setShowConfirmPassword,
 }) => {
   const isPasswordField = type === "password";
+  const isConfirmPasswordField = type === "confirmPassword";
 
   return (
     <>
@@ -46,6 +49,21 @@ const InputField = ({
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
+            className={`absolute inset-y-0 right-0 flex items-center pr-3 ${
+              darkMode
+                ? "text-gray-400 hover:text-gray-300"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        )}
+
+        {/* Eye button hanya untuk confirm password */}
+        {isConfirmPasswordField && (
+          <button
+            type="button"
+            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
             className={`absolute inset-y-0 right-0 flex items-center pr-3 ${
               darkMode
                 ? "text-gray-400 hover:text-gray-300"
