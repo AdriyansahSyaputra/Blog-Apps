@@ -1,10 +1,14 @@
 import { UserCircle, Settings, LogOut } from "lucide-react";
+import axios from "axios";
 
 const ProfileDropdown = ({ darkMode, isOpen, onClose }) => {
   if (!isOpen) return null;
 
   const handleLogout = () => {
-    console.log("Logout clicked");
+    axios.post("/api/auth/logout").then(() => {
+      window.location.href = "/auth";
+    });
+
     onClose();
   };
 

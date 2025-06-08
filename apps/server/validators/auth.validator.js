@@ -29,8 +29,6 @@ export const registerValidator = [
     .withMessage("Phone number is required!")
     .isMobilePhone("id-ID")
     .withMessage("Invalid phone number format!")
-    .isLength({ min: 12 })
-    .withMessage("Phone number must be at least 12 characters long!")
     .matches(/^[0-9]+$/)
     .withMessage("Phone number can only contain numbers!")
     .trim(),
@@ -42,17 +40,27 @@ export const registerValidator = [
     .withMessage("Password must be at least 8 characters long!")
     .trim(),
 
-  body("confirmPassword").custom((value, { req }) => {
-    if (value !== req.body.password) {
-      throw new Error("Passwords do not match");
-    }
-    return true;
-  }),
+  body("confirmPassword")
+    .custom((value, { req }) => value === req.body.password)
+    .withMessage("Passwords do not match"),
 
-  body("terms").custom((value, { req }) => {
-    if (!value) {
-      throw new Error("You must agree to the terms and conditions");
-    }
-    return true;
-  }),
+  body("terms")
+    .equals("true")
+    .withMessage("You must agree to the terms and conditions"),
+];
+
+export const LoginValidator = [
+  body("email")
+    .notEmpty()
+    .withMessage("Email is required!")
+    .isEmail()
+    .withMessage("Invalid email format!")
+    .trim(),
+
+  body("password")
+    .notEmpty()
+    .withMessage("Password is required!")
+    .isLength({ min: 8 })
+    .withMessage("Password must be at least 8 characters long!")
+    .trim(),
 ];

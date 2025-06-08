@@ -1,59 +1,21 @@
 import { ChevronRight, Mail, UserIcon, Lock, Phone } from "lucide-react";
 import InputField from "../Elements/Input/InputField";
-import axios from "axios";
-import { useState } from "react";
 
 const FormRegister = ({
   darkMode,
   showPassword,
   setShowPassword,
   setIsLogin,
+  errors,
+  success,
+  handleChange,
+  handleSubmitRegister,
+  formRegister,
+  setFormRegister
 }) => {
-  const [form, setForm] = useState({
-    name: "",
-    username: "",
-    email: "",
-    phone: "",
-    password: "",
-    confirmPassword: "",
-  });
-
-  const [errors, setErrors] = useState({});
-  const [success, setSuccess] = useState(false);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setErrors({});
-    setSuccess("");
-
-    try {
-      const res = await axios.post("/api/auth/register", form);
-
-      setSuccess(res.data.message);
-      setForm({
-        name: "",
-        username: "",
-        email: "",
-        phone: "",
-        password: "",
-        confirmPassword: "",
-      });
-    } catch (err) {
-      if (err.response && err.response.data.errors) {
-        setErrors(err.response.data.errors);
-      } else {
-        setErrors({ general: "An error occurred. Please try again." });
-      }
-    }
-  };
 
   return (
-    <form onSubmit={handleSubmit} className="p-6">
+    <form onSubmit={handleSubmitRegister} className="p-6">
       {success && <p className="text-green-600">{success}</p>}
       {errors.general && <p className="text-red-600">{errors.general}</p>}
 
@@ -64,7 +26,7 @@ const FormRegister = ({
           type="text"
           id="register-name"
           name="name"
-          value={form.name}
+          value={formRegister.name}
           onChange={handleChange}
           placeholder="John Doe"
           label="Name"
@@ -80,7 +42,7 @@ const FormRegister = ({
           type="text"
           id="register-username"
           name="username"
-          value={form.username}
+          value={formRegister.username}
           onChange={handleChange}
           placeholder="johndoe"
           label="Username"
@@ -98,7 +60,7 @@ const FormRegister = ({
           type="email"
           id="register-email"
           name="email"
-          value={form.email}
+          value={formRegister.email}
           onChange={handleChange}
           placeholder="Email"
           label="Email"
@@ -114,7 +76,7 @@ const FormRegister = ({
           type="tel"
           id="register-phone"
           name="phone"
-          value={form.phone}
+          value={formRegister.phone}
           onChange={handleChange}
           placeholder="123-456-7890"
           label="Phone"
@@ -130,7 +92,7 @@ const FormRegister = ({
           type={showPassword ? "text" : "password"}
           id="register-password"
           name="password"
-          value={form.password}
+          value={formRegister.password}
           onChange={handleChange}
           placeholder="Password"
           label="Password"
@@ -150,7 +112,7 @@ const FormRegister = ({
           type={showPassword ? "text" : "password"}
           id="register-confirm-password"
           name="confirmPassword"
-          value={form.confirmPassword}
+          value={formRegister.confirmPassword}
           onChange={handleChange}
           placeholder="Confirm Password"
           label="Confirm Password"
@@ -167,7 +129,10 @@ const FormRegister = ({
         <div className="flex items-center h-5">
           <input
             id="terms"
+            name="terms"
             type="checkbox"
+            checked={formRegister.terms || false}
+            onChange={(e) => setFormRegister({ ...formRegister, terms: e.target.checked })}
             className={`w-4 h-4 rounded ${
               darkMode
                 ? "bg-gray-700 border-gray-600 focus:ring-blue-500"

@@ -3,27 +3,33 @@ import InputField from "../Elements/Input/InputField";
 
 const FormLogin = ({
   darkMode,
-  loginData,
-  handleLoginChange,
-  handleLoginSubmit,
   showPassword,
   setShowPassword,
   setIsLogin,
+  formLogin,
+  errors,
+  success,
+  handleChange,
+  handleSubmitLogin,
 }) => {
   return (
-    <form onSubmit={handleLoginSubmit} className="p-6">
+    <form onSubmit={handleSubmitLogin} className="p-6">
+      {errors.general && <p className="text-red-600">{errors.general}</p>}
+      {success && <p className="text-green-600">{success}</p>}
+
       <div className="mb-4">
         <InputField
           darkMode={darkMode}
           type="email"
           id="login-email"
           name="email"
-          value={loginData.email}
-          onChange={handleLoginChange}
+          value={formLogin.email}
+          onChange={handleChange}
           placeholder="Email"
           label="Email"
           icon={<Mail size={18} />}
         />
+        {errors.email && <p className="text-red-600">{errors.email}</p>}
       </div>
 
       <div className="mb-4">
@@ -32,14 +38,15 @@ const FormLogin = ({
           type="password"
           id="login-password"
           name="password"
-          value={loginData.password}
-          onChange={handleLoginChange}
+          value={formLogin.password}
+          onChange={handleChange}
           placeholder="••••••••"
           label="Password"
           icon={<Lock size={18} />}
           showPassword={showPassword}
           setShowPassword={setShowPassword}
         />
+        {errors.password && <p className="text-red-600">{errors.password}</p>}
       </div>
 
       <div className="flex items-center justify-between mb-6">
