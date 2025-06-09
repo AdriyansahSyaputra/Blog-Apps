@@ -1,4 +1,5 @@
 import { ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const HeroSection = ({ darkMode }) => {
   return (
@@ -38,7 +39,8 @@ const HeroSection = ({ darkMode }) => {
               Start Reading
               <ArrowRight className="inline ml-2 h-5 w-5" />
             </button>
-            <button
+          
+            <Link to="/write-for-us"
               className={`px-6 py-3 font-medium rounded-lg transition-all duration-300 ${
                 darkMode
                   ? "bg-gray-800 text-gray-300 hover:bg-gray-700"
@@ -46,7 +48,7 @@ const HeroSection = ({ darkMode }) => {
               } shadow-sm`}
             >
               Become a Writer
-            </button>
+            </Link>
           </div>
         </div>
         <div className="lg:w-1/2 relative">

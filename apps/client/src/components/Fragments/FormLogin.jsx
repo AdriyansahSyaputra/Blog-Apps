@@ -24,7 +24,7 @@ const FormLogin = ({
           id="login-email"
           name="email"
           value={formLogin.email}
-          onChange={handleChange}
+          onChange={(e) => handleChange(e, "login")}
           placeholder="Email"
           label="Email"
           icon={<Mail size={18} />}
@@ -39,7 +39,7 @@ const FormLogin = ({
           id="login-password"
           name="password"
           value={formLogin.password}
-          onChange={handleChange}
+          onChange={(e) => handleChange(e, "login")}
           placeholder="••••••••"
           label="Password"
           icon={<Lock size={18} />}

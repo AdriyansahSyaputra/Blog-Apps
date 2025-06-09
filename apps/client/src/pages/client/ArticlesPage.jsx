@@ -106,7 +106,7 @@ const ArticlesPage = () => {
 
   return (
     <>
-      <Helmet title="Articles | Client" />
+      <Helmet title="Blog | Articles" />
 
       <Navbar />
 

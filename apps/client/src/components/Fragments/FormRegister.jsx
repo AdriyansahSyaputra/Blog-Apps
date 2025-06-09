@@ -7,17 +7,16 @@ const FormRegister = ({
   setShowPassword,
   setIsLogin,
   errors,
-  success,
   handleChange,
   handleSubmitRegister,
   formRegister,
-  setFormRegister
+  setFormRegister,
+  showConfirmPassword,
+  setShowConfirmPassword,
 }) => {
 
   return (
     <form onSubmit={handleSubmitRegister} className="p-6">
-      {success && <p className="text-green-600">{success}</p>}
-      {errors.general && <p className="text-red-600">{errors.general}</p>}
 
       {/* Name */}
       <div className="mb-4">
@@ -27,7 +26,7 @@ const FormRegister = ({
           id="register-name"
           name="name"
           value={formRegister.name}
-          onChange={handleChange}
+          onChange={(e) => handleChange(e, "register")}
           placeholder="John Doe"
           label="Name"
           icon={<UserIcon size={18} />}
@@ -43,7 +42,7 @@ const FormRegister = ({
           id="register-username"
           name="username"
           value={formRegister.username}
-          onChange={handleChange}
+          onChange={(e) => handleChange(e, "register")}
           placeholder="johndoe"
           label="Username"
           icon={<UserIcon size={18} />}
@@ -61,7 +60,7 @@ const FormRegister = ({
           id="register-email"
           name="email"
           value={formRegister.email}
-          onChange={handleChange}
+          onChange={(e) => handleChange(e, "register")}
           placeholder="Email"
           label="Email"
           icon={<Mail size={18} />}
@@ -77,8 +76,8 @@ const FormRegister = ({
           id="register-phone"
           name="phone"
           value={formRegister.phone}
-          onChange={handleChange}
-          placeholder="123-456-7890"
+          onChange={(e) => handleChange(e, "register")}
+          placeholder="+6281234567890"
           label="Phone"
           icon={<Phone size={18} />}
         />
@@ -89,11 +88,11 @@ const FormRegister = ({
       <div className="mb-6">
         <InputField
           darkMode={darkMode}
-          type={showPassword ? "text" : "password"}
+          type="password"
           id="register-password"
           name="password"
           value={formRegister.password}
-          onChange={handleChange}
+          onChange={(e) => handleChange(e, "register")}
           placeholder="Password"
           label="Password"
           icon={<Lock size={18} />}
@@ -103,22 +102,22 @@ const FormRegister = ({
         {errors.password && (
           <p className="text-red-600 text-sm">{errors.password}</p>
         )}
-      </div>
+      </div>  
 
       {/* Confirm Password */}
       <div className="mb-6">
         <InputField
           darkMode={darkMode}
-          type={showPassword ? "text" : "password"}
+          type="password"
           id="register-confirm-password"
           name="confirmPassword"
           value={formRegister.confirmPassword}
-          onChange={handleChange}
+          onChange={(e) => handleChange(e, "register")}
           placeholder="Confirm Password"
           label="Confirm Password"
           icon={<Lock size={18} />}
-          showPassword={showPassword}
-          setShowPassword={setShowPassword}
+          showConfirmPassword={showConfirmPassword}
+          setShowConfirmPassword={setShowConfirmPassword}
         />
         {errors.confirmPassword && (
           <p className="text-red-600 text-sm">{errors.confirmPassword}</p>

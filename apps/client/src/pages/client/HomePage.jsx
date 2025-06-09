@@ -95,7 +95,7 @@ const HomePage = () => {
 
   return (
     <>
-      <Helmet title="Home | Client" />
+      <Helmet title="Blog | Home" />
 
       <Navbar />
       <main

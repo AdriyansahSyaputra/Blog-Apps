@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 const CtaSection = ({ darkMode }) => {
   return (
     <section className="container mx-auto px-6 py-16">
@@ -22,9 +24,9 @@ const CtaSection = ({ darkMode }) => {
           audience.
         </p>
         <div className="flex flex-col sm:flex-row justify-center gap-4">
-          <button className="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-indigo-500/30">
+          <Link to="/write-for-us" className="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-indigo-500/30">
             Get Started - It's Free
-          </button>
+          </Link>
           <button
             className={`px-8 py-3 font-medium rounded-lg transition-all duration-300 ${
               darkMode

@@ -3,13 +3,13 @@ import {
   Home,
   FileText,
   Users,
-  Image,
   Tag,
   Settings,
   BookOpen,
   User,
   X,
   ChevronRight,
+  PenLine,
 } from "lucide-react";
 import MiniSidebar from "./MiniSidebar";
 
@@ -44,6 +44,13 @@ const Sidebar = ({ darkMode, sidebarOpen, setSidebarOpen, setActiveMenu }) => {
       icon: Tag,
       badge: null,
       href: "/dashboard/categories",
+    },
+    {
+      id: "authors-request",
+      label: "Authors Request",
+      icon: PenLine,
+      badge: null,
+      href: "/dashboard/authors/request",
     },
     {
       id: "settings",

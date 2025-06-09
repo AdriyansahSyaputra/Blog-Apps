@@ -14,6 +14,7 @@ import AddPostPage from "./pages/dashboard/AddPostPage";
 import AddUserPage from "./pages/dashboard/AddUserPage";
 import ArticleReaderPage from "./pages/client/ArticleReaderPage";
 import AuthorRequestPage from "./pages/client/AuthorRequestPage";
+import UserRequestsPage from "./pages/dashboard/UserRequestPage";
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
         <Route path="/dashboard/settings" element={<SettingsPage />} />
         <Route path="/dashboard/posts/new" element={<AddPostPage />} />
         <Route path="/dashboard/users/new" element={<AddUserPage />} />
+        <Route path="/dashboard/authors/request" element={<UserRequestsPage />} />
 
         {/* Auth Routes */}
         <Route path="/auth" element={<AuthPage />} />

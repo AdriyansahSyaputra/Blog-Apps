@@ -12,6 +12,7 @@ import {
   Info,
 } from "lucide-react";
 import { useTheme } from "../../../context/ThemeContext";
+import { Link } from "react-router-dom";
 
 // Navbar Component
 const Navbar = () => {
@@ -83,9 +84,9 @@ const Navbar = () => {
           <div className="hidden md:flex items-center space-x-8">
             <div className="flex space-x-6">
               {navLinks.map((link) => (
-                <a
+                <Link
                   key={link.name}
-                  href={link.path}
+                  to={link.path}
                   className={`relative px-1 py-2 font-medium transition-all duration-200 ${
                     darkMode
                       ? "text-gray-300 hover:text-indigo-300"
@@ -98,7 +99,7 @@ const Navbar = () => {
                       darkMode ? "opacity-80" : "opacity-100"
                     } scale-x-0 group-hover:scale-x-100 origin-left`}
                   ></span>
-                </a>
+                </Link>
               ))}
             </div>
 
