@@ -3,22 +3,9 @@ import { Helmet } from "react-helmet-async";
 import Navbar from "../../components/Templates/client/Navbar";
 import Footer from "../../components/Templates/client/Footer";
 import { useTheme } from "../../context/ThemeContext";
-import {
-  BookOpen,
-  Briefcase,
-  Link,
-  MessageSquare,
-  User,
-  Moon,
-  Sun,
-  Twitter,
-  Instagram,
-  Facebook,
-  PenTool,
-} from "lucide-react";
 import FormAuthorRequest from "../../components/Fragments/FormAuthorRequest";
 
-const AuthorRequestPage = () => {
+const AuthorRequestPage = ({ user }) => {
   const { darkMode } = useTheme();
   const [formData, setFormData] = useState({
     name: "",
@@ -26,19 +13,24 @@ const AuthorRequestPage = () => {
     job: "",
     topics: [],
     portfolio: "",
-    socialMedia: "",
+    socialLinks: {
+      twitter: "",
+      instagram: "",
+      facebook: "",
+      medium: "",
+    },
     reason: "",
   });
 
   const topics = [
-    "Technology",
-    "Design",
-    "Business",
-    "Health",
-    "Science",
-    "Travel",
-    "Food",
-    "Lifestyle",
+    "technology",
+    "design",
+    "business",
+    "health",
+    "science",
+    "travel",
+    "food",
+    "lifestyle",
   ];
 
   const handleChange = (e) => {
@@ -116,6 +108,7 @@ const AuthorRequestPage = () => {
               handleSubmit={handleSubmit}
               handleCheckboxChange={handleCheckboxChange}
               topics={topics}
+              user={user}
             />
           </div>
         </div>

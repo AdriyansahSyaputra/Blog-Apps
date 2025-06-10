@@ -17,6 +17,7 @@ const FormAuthorRequest = ({
   handleSubmit,
   handleCheckboxChange,
   topics,
+  user
 }) => {
   return (
     <form onSubmit={handleSubmit} className="p-8">
@@ -33,15 +34,14 @@ const FormAuthorRequest = ({
         <input
           type="text"
           name="name"
-          value={formData.name}
+          value={user.name}
           onChange={handleChange}
-          required
+          readOnly
           className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:outline-none transition-colors duration-300 ${
             darkMode
               ? "bg-gray-700 border-gray-600 focus:ring-blue-500 focus:border-blue-500 text-gray-100 placeholder-gray-400"
               : "bg-white border-gray-300 focus:ring-blue-400 focus:border-blue-400 text-gray-900 placeholder-gray-500"
           }`}
-          placeholder="John Doe"
         />
       </div>
 
@@ -125,6 +125,7 @@ const FormAuthorRequest = ({
             >
               <input
                 type="checkbox"
+                name="topics"
                 checked={formData.topics.includes(topic)}
                 onChange={() => handleCheckboxChange(topic)}
                 className={`mr-2 h-4 w-4 rounded focus:ring-blue-500 ${
@@ -193,7 +194,7 @@ const FormAuthorRequest = ({
             <input
               type="url"
               name="twitter"
-              value={formData.socialMedia.twitter}
+              value={formData.socialLinks.twitter}
               onChange={handleChange}
               className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:outline-none transition-colors duration-300 ${
                 darkMode
@@ -223,7 +224,7 @@ const FormAuthorRequest = ({
             <input
               type="url"
               name="instagram"
-              value={formData.socialMedia.instagram}
+              value={formData.socialLinks.instagram}
               onChange={handleChange}
               className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:outline-none transition-colors duration-300 ${
                 darkMode
@@ -253,7 +254,7 @@ const FormAuthorRequest = ({
             <input
               type="url"
               name="facebook"
-              value={formData.socialMedia.facebook}
+              value={formData.socialLinks.facebook}
               onChange={handleChange}
               className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:outline-none transition-colors duration-300 ${
                 darkMode
@@ -283,7 +284,7 @@ const FormAuthorRequest = ({
             <input
               type="url"
               name="medium"
-              value={formData.socialMedia.medium}
+              value={formData.socialLinks.medium}
               onChange={handleChange}
               className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:outline-none transition-colors duration-300 ${
                 darkMode

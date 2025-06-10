@@ -5,6 +5,7 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc.js";
 import timezone from "dayjs/plugin/timezone.js";
 import authRoutes from "./routes/auth.route.js";
+import clientRoutes from "./routes/client.route.js";
 
 const app = express();
 
@@ -25,5 +26,6 @@ app.use((err, req, res, next) => {
 
 // Routes
 app.use("/api/auth", authRoutes);
+app.use("/api", clientRoutes);
 
 export default app;
