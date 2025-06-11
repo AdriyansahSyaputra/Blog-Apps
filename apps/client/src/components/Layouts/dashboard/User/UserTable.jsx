@@ -1,6 +1,6 @@
 import { CheckCircle2, XCircle, Edit, Trash2 } from "lucide-react";
 
-const UserTable = ({ users, darkMode, onEditUser, onDeleteUser }) => {
+const UserTable = ({ users, darkMode, onEditUser, handleDeleteUser }) => {
   const getStatusIcon = (status) => {
     return status === "active" ? (
       <CheckCircle2 className="w-4 h-4 text-green-500" />
@@ -15,18 +15,14 @@ const UserTable = ({ users, darkMode, onEditUser, onDeleteUser }) => {
         return darkMode
           ? "bg-purple-900/30 text-purple-300"
           : "bg-purple-100 text-purple-800";
-      case "editor":
+      case "author":
         return darkMode
           ? "bg-blue-900/30 text-blue-300"
           : "bg-blue-100 text-blue-800";
-      case "author":
+      default:
         return darkMode
           ? "bg-green-900/30 text-green-300"
           : "bg-green-100 text-green-800";
-      default:
-        return darkMode
-          ? "bg-gray-700 text-gray-300"
-          : "bg-gray-100 text-gray-800";
     }
   };
 
@@ -210,7 +206,7 @@ const UserTable = ({ users, darkMode, onEditUser, onDeleteUser }) => {
                     darkMode ? "text-gray-400" : "text-gray-500"
                   }`}
                 >
-                  {formatDate(user.joinedDate)}
+                  {formatDate(user.createdAt)}
                 </span>
               </div>
               <div className="col-span-2 text-right">
@@ -226,7 +222,7 @@ const UserTable = ({ users, darkMode, onEditUser, onDeleteUser }) => {
                     <Edit className="w-4 h-4" />
                   </button>
                   <button
-                    onClick={() => onDeleteUser(user.id)}
+                    onClick={() => handleDeleteUser(user._id)}
                     className={`p-1 rounded-full ${
                       darkMode
                         ? "hover:bg-gray-700 text-gray-300"

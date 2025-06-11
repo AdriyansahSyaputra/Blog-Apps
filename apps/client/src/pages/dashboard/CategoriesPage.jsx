@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 import CategoryCard from "../../components/Layouts/dashboard/Category/CategoryCard";
 import StatsCard from "../../components/Layouts/dashboard/Category/StatsCard";
+import axios from "axios";
+import NotificationCard from "../../components/Fragments/NotificationCard";
 
 const CategoriesPage = () => {
   const { darkMode, toggleTheme } = useTheme();
@@ -25,6 +27,15 @@ const CategoriesPage = () => {
   const [editingCategory, setEditingCategory] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeMenu, setActiveMenu] = useState("dashboard");
+  const [categories, setCategories] = useState([]);
+  const [notification, setNotification] = useState(null);
+
+  const [formData, setFormData] = useState({
+    name: "",
+    slug: "",
+    description: "",
+    color: "",
+  });
 
   // Sample data
   const stats = [
@@ -58,109 +69,45 @@ const CategoriesPage = () => {
     },
   ];
 
-  const categories = [
-    {
-      id: 1,
-      name: "Web Development",
-      slug: "web-development",
-      description:
-        "Everything about building modern web applications, from frontend to backend technologies.",
-      color: "#3B82F6",
-      postsCount: 45,
-      status: "active",
-      trending: true,
-      subcategories: ["React", "Vue.js", "Angular", "Node.js"],
-    },
-    {
-      id: 2,
-      name: "Mobile Development",
-      slug: "mobile-development",
-      description:
-        "Native and cross-platform mobile app development tutorials and guides.",
-      color: "#10B981",
-      postsCount: 28,
-      status: "active",
-      trending: false,
-      subcategories: ["React Native", "Flutter", "iOS", "Android"],
-    },
-    {
-      id: 3,
-      name: "Data Science",
-      slug: "data-science",
-      description:
-        "Machine learning, AI, and data analytics content for modern developers.",
-      color: "#8B5CF6",
-      postsCount: 32,
-      status: "active",
-      trending: true,
-      subcategories: [
-        "Python",
-        "Machine Learning",
-        "TensorFlow",
-        "Data Visualization",
-      ],
-    },
-    {
-      id: 4,
-      name: "DevOps",
-      slug: "devops",
-      description:
-        "Deployment, CI/CD, containerization, and infrastructure management.",
-      color: "#F59E0B",
-      postsCount: 19,
-      status: "active",
-      trending: false,
-      subcategories: ["Docker", "Kubernetes", "AWS", "Jenkins"],
-    },
-    {
-      id: 5,
-      name: "UI/UX Design",
-      slug: "ui-ux-design",
-      description:
-        "User interface and user experience design principles and best practices.",
-      color: "#EC4899",
-      postsCount: 25,
-      status: "active",
-      trending: true,
-      subcategories: ["Figma", "Adobe XD", "Prototyping", "User Research"],
-    },
-    {
-      id: 6,
-      name: "Cybersecurity",
-      slug: "cybersecurity",
-      description:
-        "Security best practices, ethical hacking, and vulnerability assessment.",
-      color: "#EF4444",
-      postsCount: 15,
-      status: "active",
-      trending: false,
-      subcategories: ["Penetration Testing", "Network Security", "Encryption"],
-    },
-    {
-      id: 7,
-      name: "Blockchain",
-      slug: "blockchain",
-      description:
-        "Cryptocurrency, smart contracts, and decentralized application development.",
-      color: "#06B6D4",
-      postsCount: 12,
-      status: "active",
-      trending: true,
-      subcategories: ["Ethereum", "Solidity", "DeFi", "NFT"],
-    },
-    {
-      id: 8,
-      name: "Game Development",
-      slug: "game-development",
-      description:
-        "Creating games for various platforms using different engines and frameworks.",
-      color: "#84CC16",
-      postsCount: 8,
-      status: "active",
-      trending: false,
-      subcategories: ["Unity", "Unreal Engine", "2D Games", "3D Modeling"],
-    },
+  const colors = [
+    "#3B82F6",
+    "#8B5CF6",
+    "#10B981",
+    "#F59E0B",
+    "#EF4444",
+    "#EC4899",
+    "#06B6D4",
+    "#84CC16",
   ];
+
+  // Create Category
+  const handleCreateCategory = async (e) => {
+    e.preventDefault();
+
+    try {
+      await axios.get("/api/dashboard/users/new", formData, {
+        withCredentials: true,
+      });
+
+      setNotification({
+        type: "success",
+        message: "User added successfully.",
+      });
+
+      setFormData({
+        name: "",
+        slug: "",
+        description: "",
+        color: "",
+      });
+    } catch (error) {
+      console.error("Failed to add user:", error);
+      setNotification({
+        type: "error",
+        message: "Failed to add user.",
+      });
+    }
+  };
 
   // Filter categories based on search
   const filteredCategories = categories.filter(
@@ -190,6 +137,14 @@ const CategoriesPage = () => {
   return (
     <>
       <Helmet title="Dashboard | Categories" />
+
+      {notification && (
+        <NotificationCard
+          type={notification.type}
+          message={notification.message}
+          onClose={() => setNotification(null)}
+        />
+      )}
 
       <div
         className={`min-h-screen transition-all duration-300 ${
@@ -359,6 +314,10 @@ const CategoriesPage = () => {
               onClose={() => setShowModal(false)}
               category={editingCategory}
               onSave={handleSaveCategory}
+              colors={colors}
+              formData={formData}
+              setFormData={setFormData}
+              handleCreateCategory={handleCreateCategory}
             />
           </main>
         </div>

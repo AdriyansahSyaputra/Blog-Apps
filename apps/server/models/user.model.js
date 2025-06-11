@@ -55,6 +55,13 @@ const userSchema = new mongoose.Schema(
         default: "pending",
       },
     },
+    birthday: Date,
+    status: {
+      type: String,
+      enum: ["active", "inactive", "suspended"],
+      default: "active",
+    },
+    avatar: String,
   },
   {
     timestamps: true,

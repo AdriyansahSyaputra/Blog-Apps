@@ -71,42 +71,6 @@ const CategoryCard = ({ category, darkMode, onEdit, onDelete }) => {
         {category.description || "No description available"}
       </p>
 
-      {/* Subcategories */}
-      {category.subcategories && category.subcategories.length > 0 && (
-        <div className="mb-4">
-          <p
-            className={`text-xs font-medium mb-2 ${
-              darkMode ? "text-gray-400" : "text-gray-600"
-            }`}
-          >
-            Subcategories:
-          </p>
-          <div className="flex flex-wrap gap-1">
-            {category.subcategories.slice(0, 3).map((sub, index) => (
-              <span
-                key={index}
-                className={`inline-flex items-center px-2 py-1 rounded-full text-xs ${
-                  darkMode
-                    ? "bg-gray-800 text-gray-300"
-                    : "bg-gray-100 text-gray-600"
-                }`}
-              >
-                {sub}
-              </span>
-            ))}
-            {category.subcategories.length > 3 && (
-              <span
-                className={`text-xs ${
-                  darkMode ? "text-gray-400" : "text-gray-500"
-                }`}
-              >
-                +{category.subcategories.length - 3} more
-              </span>
-            )}
-          </div>
-        </div>
-      )}
-
       {/* Stats */}
       <div className="flex items-center justify-between pt-4 border-t border-gray-200/20">
         <div className="flex items-center space-x-4">

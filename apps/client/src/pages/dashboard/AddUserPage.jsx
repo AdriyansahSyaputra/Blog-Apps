@@ -5,6 +5,8 @@ import { Helmet } from "react-helmet-async";
 import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import FormAddUser from "../../components/Fragments/FormAddUser";
+import axios from "axios";
+import NotificationCard from "../../components/Fragments/NotificationCard";
 
 const AddUserPage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -13,21 +15,19 @@ const AddUserPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [notification, setNotification] = useState(null);
+  const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
     name: "",
     username: "",
     email: "",
-    password: "",
-    confirmPassword: "",
     phone: "",
-    role: "user",
-    status: "active",
-    address: "",
-    city: "",
-    country: "",
-    bio: "",
-    birthDate: "",
-    website: "",
+    password: "",
+    birthday: "",
+    confirmPassword: "",
+    role: "",
+    status: "",
+    avatar: null,
   });
 
   const handleInputChange = (e) => {
@@ -41,20 +41,88 @@ const AddUserPage = () => {
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
+      // Preview image
       const reader = new FileReader();
       reader.onload = (e) => setSelectedImage(e.target.result);
       reader.readAsDataURL(file);
+
+      // Simpan ke formData
+      setFormData((prev) => ({
+        ...prev,
+        avatar: file,
+      }));
     }
   };
 
   const removeImage = () => {
     setSelectedImage(null);
+    setFormData((prev) => ({
+      ...prev,
+      avatar: null,
+    }));
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      await axios.post("/api/dashboard/users/new", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true,
+      });
+
+      setNotification({
+        type: "success",
+        message: "User added successfully.",
+      });
+
+      setFormData({
+        name: "",
+        username: "",
+        email: "",
+        phone: "",
+        password: "",
+        birthday: "",
+        confirmPassword: "",
+        role: "",
+        status: "",
+        avatar: null,
+      });
+    } catch (err) {
+      let errorMessage = "Network error. Please check your connection.";
+      let fieldErrors = {};
+
+      if (err.response) {
+        // Error dari server (4xx/5xx)
+        if (err.response.data?.errors) {
+          fieldErrors = err.response.data.errors;
+          errorMessage = "Please fix the form errors";
+        } else {
+          errorMessage = err.response.data?.message || errorMessage;
+        }
+      } else if (err.request) {
+        // Request dibuat tapi tidak ada response (timeout, dll)
+        errorMessage = "Server is not responding. Please try later.";
+      }
+
+      setErrors(fieldErrors);
+      setNotification({ type: "error", message: errorMessage });
+    }
+  };
 
   return (
     <>
       <Helmet title="Dashboard | Add Post" />
+
+      {notification && (
+        <NotificationCard
+          type={notification.type}
+          message={notification.message}
+          onClose={() => setNotification(null)}
+        />
+      )}
 
       <div
         className={`min-h-screen transition-all duration-300 ${
@@ -100,7 +168,8 @@ const AddUserPage = () => {
               >
                 <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
                   <div className="flex items-center space-x-4">
-                    <button onClick={() => window.history.back()}
+                    <button
+                      onClick={() => window.history.back()}
                       className={`p-2 rounded-lg transition-colors duration-200 ${
                         darkMode
                           ? "hover:bg-gray-800 text-gray-300"
@@ -142,6 +211,8 @@ const AddUserPage = () => {
                   showPassword={showPassword}
                   setShowPassword={setShowPassword}
                   showConfirmPassword={showConfirmPassword}
+                  handleSubmit={handleSubmit}
+                  errors={errors}
                 />
               </div>
             </div>

@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 
 const CategoryModal = ({
@@ -7,55 +6,10 @@ const CategoryModal = ({
   onClose,
   category = null,
   onSave,
+  colors,
+  formData,
+  setFormData,
 }) => {
-  const [formData, setFormData] = useState({
-    name: "",
-    slug: "",
-    description: "",
-    color: "#3B82F6",
-    icon: "Tag",
-    parentId: null,
-  });
-
-  useEffect(() => {
-    if (category) {
-      setFormData({
-        name: category.name,
-        slug: category.slug,
-        description: category.description,
-        color: category.color,
-        icon: category.icon,
-        parentId: category.parentId,
-      });
-    } else {
-      setFormData({
-        name: "",
-        slug: "",
-        description: "",
-        color: "#3B82F6",
-        icon: "Tag",
-        parentId: null,
-      });
-    }
-  }, [category, isOpen]);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSave(formData);
-    onClose();
-  };
-
-  const colors = [
-    "#3B82F6",
-    "#8B5CF6",
-    "#10B981",
-    "#F59E0B",
-    "#EF4444",
-    "#EC4899",
-    "#06B6D4",
-    "#84CC16",
-  ];
-
   if (!isOpen) return null;
 
   return (

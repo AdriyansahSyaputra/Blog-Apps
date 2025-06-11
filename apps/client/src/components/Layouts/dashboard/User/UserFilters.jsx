@@ -48,9 +48,9 @@ const UserFilters = ({
             >
               <option value="all">Semua Peran</option>
               <option value="admin">Admin</option>
-              <option value="editor">Editor</option>
-              <option value="author">Penulis</option>
-              <option value="subscriber">Pelanggan</option>
+              <option value="viewer">Viewer</option>
+              <option value="author">Author</option>
+              <option value="membership">Membership</option>
             </select>
             <ChevronDown
               className={`absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${

@@ -1,4 +1,5 @@
 import User from "../models/user.model.js";
+import bcrypt from "bcrypt";
 
 // Fungsi untuk submit request author
 export const submitAuthorRequest = async (req, res) => {
@@ -62,6 +63,7 @@ export const approveAuthorRequest = async (req, res) => {
   res.status(200).json({ message: "Author request approved successfully." });
 };
 
+// Fungsi apabila author request ditolak
 export const rejectAuthorRequest = async (req, res) => {
   const user = await User.findById(req.params.id);
 
@@ -75,6 +77,7 @@ export const rejectAuthorRequest = async (req, res) => {
   res.status(200).json({ message: "Author request rejected successfully." });
 };
 
+// Ambil data user
 export const getCurrentUser = (req, res) => {
   const user = req.user;
   if (!user) return res.status(404).json({ message: "User not found." });
@@ -87,4 +90,88 @@ export const getPendingRequests = async (req, res) => {
   const users = await User.find({ isAuthorRequestPending: true });
 
   return res.status(200).json(users);
+};
+
+// Fungsi untuk menambahkan user baru
+export const addUser = async (req, res) => {
+  const { name, username, email, phone, birthday, password, role, status } =
+    req.body;
+  const avatar = req.file ? req.file.filename : "default.jpg";
+
+  try {
+    // Cek email atau username sudah digunakan
+    const existingUser = await User.findOne({
+      $or: [{ email }, { username }],
+    });
+
+    if (existingUser) {
+      return res.status(400).json({
+        errors: {
+          email:
+            existingUser.email === email ? "Email already exists" : undefined,
+          username:
+            existingUser.username === username
+              ? "Username already exists"
+              : undefined,
+        },
+      });
+    }
+
+    // Enkripsi Password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Membuat User baru
+    const user = new User({
+      name,
+      username,
+      email,
+      phone,
+      birthday,
+      password: hashedPassword,
+      role,
+      status,
+      avatar,
+    });
+    await user.save();
+
+    return res.status(201).json({ message: "User created successfully." });
+  } catch (err) {
+    console.log(err);
+
+    // Hapus file jika terjadi error saat save
+    if (req.file) {
+      const filePath = path.join(__dirname, "../uploads/", req.file.filename);
+      fs.unlink(filePath, (err) => {
+        if (err) console.error("Gagal menghapus file:", err.message);
+      });
+    }
+
+    return res.status(500).json({ message: "Something went wrong." });
+  }
+};
+
+// Ambil semua data users
+export const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().lean();
+    if (!users) {
+      return res.status(404).json({ message: "Users not found." });
+    }
+
+    return res.status(200).json(users);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "Something went wrong." });
+  }
+};
+
+// Delete user
+export const deleteUser = async (req, res) => {
+  try {
+    await User.findByIdAndDelete(req.params.id);
+    return res.status(200).json({ message: "User deleted successfully." });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "Something went wrong." });
+  }
 };

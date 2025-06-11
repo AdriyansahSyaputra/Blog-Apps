@@ -5,7 +5,9 @@ import UserTable from "../../components/Layouts/dashboard/User/UserTable";
 import Sidebar from "../../components/Templates/dashboard/Sidebar";
 import Topbar from "../../components/Templates/dashboard/Topbar";
 import { useTheme } from "../../context/ThemeContext";
-import { useState } from "react";
+import NotificationCard from "../../components/Fragments/NotificationCard";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 const UserPage = () => {
   const { darkMode, toggleTheme } = useTheme();
@@ -15,33 +17,47 @@ const UserPage = () => {
   const [selectedRole, setSelectedRole] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
   const [currentPage, setCurrentPage] = useState(1);
+  const [users, setUsers] = useState([]);
+  const [notification, setNotification] = useState(null);
   const usersPerPage = 8;
 
-  // Data contoh pengguna
-  const users = [
-    {
-      id: "1",
-      name: "Admin Utama",
-      email: "admin@blog.com",
-      role: "admin",
-      status: "active",
-      lastActive: new Date(Date.now() - 1000 * 60 * 60),
-      avatar: "/avatars/admin.jpg",
-      posts: 42,
-      joinedDate: new Date("2023-01-15"),
-    },
-    {
-      id: "2",
-      name: "Editor Senior",
-      email: "editor@blog.com",
-      role: "editor",
-      status: "active",
-      lastActive: new Date(Date.now() - 1000 * 60 * 60 * 3),
-      posts: 28,
-      joinedDate: new Date("2023-03-10"),
-    },
-    // Data pengguna lainnya...
-  ];
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await axios.get("/api/dashboard/users", {
+          withCredentials: true,
+        });
+        const userWithDates = res.data.map((user) => ({
+          ...user,
+          createdAt: new Date(user.createdAt),
+          updatedAt: new Date(user.updatedAt),
+        }));
+        setUsers(userWithDates);
+      } catch (err) {
+        console.log("Gagal mengambil data pengguna:", err);
+      }
+    };
+    fetchUsers();
+  }, []);
+
+  // Delete User
+  const handleDeleteUser = async (userId) => {
+    try {
+      await axios.delete(`/api/dashboard/users/${userId}`, {
+        withCredentials: true,
+      });
+      setNotification({
+        type: "success",
+        message: "User deleted successfully.",
+      });
+    } catch (err) {
+      console.log("Gagal menghapus pengguna:", err);
+      setNotification({
+        type: "error",
+        message: err.response?.data?.message || "Error deleting user.",
+      });
+    }
+  }
 
   // Filter data pengguna
   const filteredUsers = users.filter((user) => {
@@ -55,9 +71,9 @@ const UserPage = () => {
   // Urutkan data pengguna
   const sortedUsers = [...filteredUsers].sort((a, b) => {
     if (sortBy === "newest")
-      return b.joinedDate.getTime() - a.joinedDate.getTime();
+      return b.createdAt.getTime() - a.createdAt.getTime();
     if (sortBy === "oldest")
-      return a.joinedDate.getTime() - b.joinedDate.getTime();
+      return a.createdAt.getTime() - b.createdAt.getTime();
     if (sortBy === "name") return a.name.localeCompare(b.name);
     return 0;
   });
@@ -70,6 +86,14 @@ const UserPage = () => {
 
   return (
     <>
+      {notification && (
+        <NotificationCard
+          type={notification.type}
+          message={notification.message}
+          onClose={() => setNotification(null)}
+        />
+      )}
+
       <div
         className={`min-h-screen transition-all duration-300 ${
           darkMode
@@ -101,10 +125,7 @@ const UserPage = () => {
 
           {/* Dashboard Content */}
           <main className="p-6">
-            <UserHeader
-              darkMode={darkMode}
-              onAddUser={() => console.log("Tambah pengguna")}
-            />
+            <UserHeader darkMode={darkMode} />
 
             <UserFilters
               darkMode={darkMode}
@@ -119,8 +140,7 @@ const UserPage = () => {
             <UserTable
               users={currentUsers}
               darkMode={darkMode}
-              onEditUser={(id) => console.log("Edit", id)}
-              onDeleteUser={(id) => console.log("Hapus", id)}
+              handleDeleteUser={handleDeleteUser}
             />
 
             <UserPagination

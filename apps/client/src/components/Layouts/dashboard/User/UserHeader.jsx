@@ -1,6 +1,7 @@
 import { Plus } from "lucide-react";
+import { Link } from "react-router-dom";
 
-const UserHeader = ({ darkMode, onAddUser }) => {
+const UserHeader = ({ darkMode }) => {
   return (
     <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
       <div>
@@ -17,8 +18,8 @@ const UserHeader = ({ darkMode, onAddUser }) => {
           Kelola semua pengguna yang terdaftar
         </p>
       </div>
-      <button
-        onClick={onAddUser}
+      <Link
+        to="/dashboard/users/new"
         className={`flex items-center px-4 py-2 mt-4 md:mt-0 rounded-xl transition-all duration-200 font-medium ${
           darkMode
             ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700"
@@ -27,7 +28,7 @@ const UserHeader = ({ darkMode, onAddUser }) => {
       >
         <Plus className="w-5 h-5 mr-2" />
         Tambah Pengguna
-      </button>
+      </Link>
     </div>
   );
 };

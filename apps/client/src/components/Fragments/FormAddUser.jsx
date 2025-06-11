@@ -1,4 +1,18 @@
-import { Camera, Save, X, Upload, Calendar, UserIcon, Mail, Phone, Globe, Eye, EyeOff, Shield, Lock } from "lucide-react";
+import {
+  Camera,
+  Save,
+  X,
+  Upload,
+  Calendar,
+  UserIcon,
+  Mail,
+  Phone,
+  Globe,
+  Eye,
+  EyeOff,
+  Shield,
+  Lock,
+} from "lucide-react";
 import InputField from "../Elements/Input/InputField";
 
 const FormAddUser = ({
@@ -12,9 +26,11 @@ const FormAddUser = ({
   showPassword,
   setShowPassword,
   showConfirmPassword,
+  handleSubmit,
+  errors,
 }) => {
   return (
-    <form className="space-y-8">
+    <form onSubmit={handleSubmit} className="space-y-8">
       {/* Profile Image Section */}
       <div
         className={`rounded-2xl border backdrop-blur-xl transition-all duration-300 ${
@@ -68,6 +84,7 @@ const FormAddUser = ({
               <input
                 type="file"
                 accept="image/*"
+                name="avatar"
                 onChange={handleImageUpload}
                 className="hidden"
                 id="profile-image"
@@ -92,6 +109,9 @@ const FormAddUser = ({
               </p>
             </div>
           </div>
+          {errors.profileImage && (
+            <p className="text-red-600 text-sm mt-1">{errors.profileImage}</p>
+          )}
         </div>
       </div>
 
@@ -126,6 +146,9 @@ const FormAddUser = ({
                 label="Name"
                 icon={<UserIcon size={18} />}
               />
+              {errors.name && (
+                <p className="text-red-600 text-sm">{errors.name}</p>
+              )}
             </div>
 
             {/* Username */}
@@ -141,6 +164,10 @@ const FormAddUser = ({
                 label="Username"
                 icon={<UserIcon size={18} />}
               />
+
+              {errors.username && (
+                <p className="text-red-600 text-sm">{errors.username}</p>
+              )}
             </div>
 
             {/* Email */}
@@ -156,6 +183,10 @@ const FormAddUser = ({
                 label="Email"
                 icon={<Mail size={18} />}
               />
+
+              {errors.email && (
+                <p className="text-red-600 text-sm">{errors.email}</p>
+              )}
             </div>
 
             {/* Phone */}
@@ -171,6 +202,10 @@ const FormAddUser = ({
                 label="Phone"
                 icon={<Phone size={18} />}
               />
+
+              {errors.phone && (
+                <p className="text-red-600 text-sm">{errors.phone}</p>
+              )}
             </div>
 
             {/* Birth Date */}
@@ -179,15 +214,17 @@ const FormAddUser = ({
                 darkMode={darkMode}
                 type="date"
                 id="birthdate"
-                name="birthdate"
-                value={formData.birthDate}
+                name="birthday"
+                value={formData.birthday}
                 onChange={handleInputChange}
                 label="Birth Date"
                 icon={<Calendar size={18} />}
               />
-            </div>
 
-            
+              {errors.birthday && (
+                <p className="text-red-600 text-sm">{errors.birthday}</p>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -225,6 +262,9 @@ const FormAddUser = ({
                 showPassword={showPassword}
                 setShowPassword={setShowPassword}
               />
+              {errors.password && (
+                <p className="text-red-600 text-sm">{errors.password}</p>
+              )}
             </div>
 
             {/* Confirm Password */}
@@ -242,6 +282,9 @@ const FormAddUser = ({
                 showPassword={showConfirmPassword}
                 setShowPassword={setShowConfirmPassword}
               />
+              {errors.confirmPassword && (
+                <p className="text-red-600 text-sm">{errors.confirmPassword}</p>
+              )}
             </div>
 
             {/* Role */}
@@ -268,13 +311,16 @@ const FormAddUser = ({
                       ? "bg-gray-700/50 border-gray-600 text-white"
                       : "bg-gray-50/50 border-gray-200 text-gray-900"
                   }`}
-                  required
                 >
-                  <option value="user">User</option>
-                  <option value="editor">Editor</option>
+                  <option value="">Select Role</option>
+                  <option value="viewer">Viewer</option>
+                  <option value="author">Author</option>
                   <option value="admin">Admin</option>
                 </select>
               </div>
+              {errors.role && (
+                <p className="text-red-600 text-sm">{errors.role}</p>
+              )}
             </div>
 
             {/* Status */}
@@ -296,10 +342,14 @@ const FormAddUser = ({
                     : "bg-gray-50/50 border-gray-200 text-gray-900"
                 }`}
               >
+                <option value="">Select Status</option>
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
                 <option value="suspended">Suspended</option>
               </select>
+              {errors.status && (
+                <p className="text-red-600 text-sm">{errors.status}</p>
+              )}
             </div>
           </div>
         </div>
@@ -307,7 +357,8 @@ const FormAddUser = ({
 
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row gap-4 pt-6">
-        <button onClick={() => window.history.back()}
+        <button
+          onClick={() => window.history.back()}
           type="button"
           className={`flex-1 px-6 py-3 rounded-xl border transition-all duration-200 font-medium ${
             darkMode
