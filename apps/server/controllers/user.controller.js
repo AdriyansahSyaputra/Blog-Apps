@@ -14,6 +14,17 @@ export const submitAuthorRequest = async (req, res) => {
     if (user.role === "author")
       return res.status(400).json({ message: "You are already an author." });
 
+    // Cek apakah user sudah punya permintaan yang pending atau sudah di-approve
+    if (
+      user.isAuthorRequestPending ||
+      user.authorRequest?.status === "pending" ||
+      user.authorRequest?.status === "approved"
+    ) {
+      return res
+        .status(400)
+        .json({ message: "You have already submitted a request." });
+    }
+
     user.authorRequest = {
       bio,
       job,
@@ -62,4 +73,18 @@ export const rejectAuthorRequest = async (req, res) => {
   await user.save();
 
   res.status(200).json({ message: "Author request rejected successfully." });
+};
+
+export const getCurrentUser = (req, res) => {
+  const user = req.user;
+  if (!user) return res.status(404).json({ message: "User not found." });
+
+  return res.status(200).json(user);
+};
+
+// Ambil data pending request author
+export const getPendingRequests = async (req, res) => {
+  const users = await User.find({ isAuthorRequestPending: true });
+
+  return res.status(200).json(users);
 };

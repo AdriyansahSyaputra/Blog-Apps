@@ -1,12 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import Navbar from "../../components/Templates/client/Navbar";
 import Footer from "../../components/Templates/client/Footer";
 import { useTheme } from "../../context/ThemeContext";
 import FormAuthorRequest from "../../components/Fragments/FormAuthorRequest";
+import axios from "axios";
+import NotificationCard from "../../components/Fragments/NotificationCard";
 
-const AuthorRequestPage = ({ user }) => {
+const AuthorRequestPage = () => {
   const { darkMode } = useTheme();
+  const [user, setUser] = useState({ name: "" });
+  const [notification, setNotification] = useState(null);
+  const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
     name: "",
     bio: "",
@@ -33,9 +38,30 @@ const AuthorRequestPage = ({ user }) => {
     "lifestyle",
   ];
 
+  // Ambil data user sekarang
+  useEffect(() => {
+    axios
+      .get("/api/client/me", { withCredentials: true })
+      .then((res) => setUser(res.data))
+      .catch((err) => console.log("Gagal mengambil data user", err));
+  }, []);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    if (name in formData.socialLinks) {
+      // Jika field termasuk dalam socialLinks
+      setFormData((prev) => ({
+        ...prev,
+        socialLinks: {
+          ...prev.socialLinks,
+          [name]: value,
+        },
+      }));
+    } else {
+      // Untuk field langsung
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleCheckboxChange = (topic) => {
@@ -48,10 +74,52 @@ const AuthorRequestPage = ({ user }) => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
-    // Add your form submission logic here
+    try {
+      await axios.post("/api/client/request-author", formData, {
+        withCredentials: true,
+      });
+
+      setNotification({
+        type: "success",
+        message: "Author request submitted successfully.",
+      });
+
+      setFormData({
+        name: "",
+        bio: "",
+        job: "",
+        topics: [],
+        portfolio: "",
+        socialLinks: {
+          twitter: "",
+          instagram: "",
+          facebook: "",
+          medium: "",
+        },
+        reason: "",
+      });
+    } catch (err) {
+      let errorMessage = "Network error. Please check your connection.";
+      let fieldErrors = {};
+
+      if (err.response) {
+        // Error dari server (4xx/5xx)
+        if (err.response.data?.errors) {
+          fieldErrors = err.response.data.errors;
+          errorMessage = "Please fix the form errors";
+        } else {
+          errorMessage = err.response.data?.message || errorMessage;
+        }
+      } else if (err.request) {
+        // Request dibuat tapi tidak ada response (timeout, dll)
+        errorMessage = "Server is not responding. Please try later.";
+      }
+
+      setErrors(fieldErrors);
+      setNotification({ type: "error", message: errorMessage });
+    }
   };
 
   return (
@@ -59,6 +127,14 @@ const AuthorRequestPage = ({ user }) => {
       <Helmet title="Articles | Client" />
 
       <Navbar />
+
+      {notification && (
+        <NotificationCard
+          type={notification.type}
+          message={notification.message}
+          onClose={() => setNotification(null)}
+        />
+      )}
 
       <main
         className={`pb-12 min-h-screen transition-colors duration-300 container mx-auto px-6 py-12 ${
@@ -109,6 +185,7 @@ const AuthorRequestPage = ({ user }) => {
               handleCheckboxChange={handleCheckboxChange}
               topics={topics}
               user={user}
+              errors={errors}
             />
           </div>
         </div>

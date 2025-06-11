@@ -16,7 +16,8 @@ const ModalInfo = ({
   selectedRequest,
   formatDate,
   getSocialIcon,
-  handleAction,
+  handleApprove,
+  handleReject,
 }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -328,14 +329,20 @@ const ModalInfo = ({
             Close
           </button>
           <button
-            onClick={() => handleAction(selectedRequest._id, "rejected")}
+            onClick={() => {
+              handleReject(selectedRequest._id);
+              closeModal();
+            }}
             className="px-6 py-2 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition-colors duration-200"
           >
             <X className="w-4 h-4 inline mr-2" />
             Reject
           </button>
           <button
-            onClick={() => handleAction(selectedRequest._id, "approved")}
+            onClick={() => {
+              handleApprove(selectedRequest._id);
+              closeModal();
+            }}
             className="px-6 py-2 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 transition-colors duration-200"
           >
             <Check className="w-4 h-4 inline mr-2" />

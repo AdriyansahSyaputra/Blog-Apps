@@ -23,10 +23,10 @@ export const authenticateUser = (req, res, next) => {
 export const authorizeRoles =
   (...allowedRoles) =>
   (req, res, next) => {
-    if (!allowedRoles.includes(req.user.role)) {
-      return res
-        .status(403)
-        .json({ message: "You are not authorized to perform this action." });
+    if (!req.user || !allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({
+        message: "You are not authorized to perform this action.",
+      });
     }
     next();
   };

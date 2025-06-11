@@ -17,7 +17,8 @@ const FormAuthorRequest = ({
   handleSubmit,
   handleCheckboxChange,
   topics,
-  user
+  user,
+  errors,
 }) => {
   return (
     <form onSubmit={handleSubmit} className="p-8">
@@ -34,7 +35,7 @@ const FormAuthorRequest = ({
         <input
           type="text"
           name="name"
-          value={user.name}
+          value={user ? user.name : ""}
           onChange={handleChange}
           readOnly
           className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:outline-none transition-colors duration-300 ${
@@ -59,7 +60,6 @@ const FormAuthorRequest = ({
           name="bio"
           value={formData.bio}
           onChange={handleChange}
-          required
           rows={3}
           className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:outline-none transition-colors duration-300 ${
             darkMode
@@ -68,6 +68,7 @@ const FormAuthorRequest = ({
           }`}
           placeholder="Tell us about yourself in a few words..."
         />
+        {errors.bio && <p className="text-red-500 text-sm">{errors.bio}</p>}
       </div>
 
       {/* Job Field */}
@@ -85,7 +86,6 @@ const FormAuthorRequest = ({
           name="job"
           value={formData.job}
           onChange={handleChange}
-          required
           className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:outline-none transition-colors duration-300 ${
             darkMode
               ? "bg-gray-700 border-gray-600 focus:ring-blue-500 focus:border-blue-500 text-gray-100 placeholder-gray-400"
@@ -93,6 +93,7 @@ const FormAuthorRequest = ({
           }`}
           placeholder="Software Engineer"
         />
+        {errors.job && <p className="text-red-500 text-sm">{errors.job}</p>}
       </div>
 
       {/* Topics Field */}
@@ -138,6 +139,9 @@ const FormAuthorRequest = ({
             </label>
           ))}
         </div>
+        {errors.topics && (
+          <p className="text-red-500 text-sm">{errors.topics}</p>
+        )}
       </div>
 
       {/* Portfolio Field */}
@@ -162,6 +166,9 @@ const FormAuthorRequest = ({
           }`}
           placeholder="https://yourportfolio.com"
         />
+        {errors.portfolio && (
+          <p className="text-red-500 text-sm">{errors.portfolio}</p>
+        )}
       </div>
 
       {/* Social Media Fields */}
@@ -203,6 +210,9 @@ const FormAuthorRequest = ({
               }`}
               placeholder="https://twitter.com/username"
             />
+            {errors.twitter && (
+              <p className="text-red-500 text-sm">{errors.twitter}</p>
+            )}
           </div>
 
           {/* Instagram */}
@@ -233,6 +243,9 @@ const FormAuthorRequest = ({
               }`}
               placeholder="https://instagram.com/username"
             />
+            {errors.instagram && (
+              <p className="text-red-500 text-sm">{errors.instagram}</p>
+            )}
           </div>
 
           {/* Facebook */}
@@ -263,6 +276,9 @@ const FormAuthorRequest = ({
               }`}
               placeholder="https://facebook.com/username"
             />
+            {errors.facebook && (
+              <p className="text-red-500 text-sm">{errors.facebook}</p>
+            )}
           </div>
 
           {/* Medium */}
@@ -293,6 +309,9 @@ const FormAuthorRequest = ({
               }`}
               placeholder="https://medium.com/@username"
             />
+            {errors.medium && (
+              <p className="text-red-500 text-sm">{errors.medium}</p>
+            )}
           </div>
         </div>
       </div>
@@ -311,7 +330,6 @@ const FormAuthorRequest = ({
           name="reason"
           value={formData.reason}
           onChange={handleChange}
-          required
           rows={4}
           className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:outline-none transition-colors duration-300 ${
             darkMode
@@ -320,6 +338,9 @@ const FormAuthorRequest = ({
           }`}
           placeholder="Share your motivation for joining our writing community..."
         />
+        {errors.reason && (
+          <p className="text-red-500 text-sm">{errors.reason}</p>
+        )}
       </div>
 
       {/* Submit Button */}

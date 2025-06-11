@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Globe, Facebook, Instagram, Twitter, FileText } from "lucide-react";
 import DesktopTable from "../../components/Layouts/dashboard/RequestAuthor/DesktopTable";
 import MobileCard from "../../components/Layouts/dashboard/RequestAuthor/MobileCard";
@@ -7,95 +7,90 @@ import Sidebar from "../../components/Templates/dashboard/Sidebar";
 import Topbar from "../../components/Templates/dashboard/Topbar";
 import { useTheme } from "../../context/ThemeContext";
 import { Helmet } from "react-helmet-async";
+import axios from "axios";
+import NotificationCard from "../../components/Fragments/NotificationCard";
 
 const UserRequestsPage = () => {
+  const { darkMode, toggleTheme } = useTheme();
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const { darkMode, toggleTheme } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeMenu, setActiveMenu] = useState("dashboard");
-  const [requests, setRequests] = useState([
-    {
-      _id: "1",
-      name: "John Doe",
-      email: "john.doe@example.com",
-      authorRequest: {
-        bio: "Passionate writer with 5+ years of experience in tech journalism and content creation. Love to share insights about modern web development.",
-        job: "Senior Frontend Developer",
-        topics: ["React", "JavaScript", "Web Development", "UI/UX"],
-        portfolio: "https://johndoe.dev",
-        socialLinks: {
-          twitter: "https://twitter.com/johndoe",
-          instagram: "https://instagram.com/johndoe",
-          facebook: "https://facebook.com/johndoe",
-          medium: "https://medium.com/@johndoe",
-        },
-        reason:
-          "I want to contribute to the tech community by sharing my knowledge and experiences in web development.",
-        requestedAt: new Date("2024-12-01T10:30:00Z"),
-        status: "pending",
-      },
-    },
-    {
-      _id: "2",
-      name: "Sarah Wilson",
-      email: "sarah.wilson@example.com",
-      authorRequest: {
-        bio: "Digital marketing specialist and content strategist with expertise in SEO and social media management.",
-        job: "Marketing Manager",
-        topics: [
-          "Digital Marketing",
-          "SEO",
-          "Content Strategy",
-          "Social Media",
-        ],
-        portfolio: "https://sarahwilson.com",
-        socialLinks: {
-          twitter: "https://twitter.com/sarahwilson",
-          instagram: "https://instagram.com/sarahwilson",
-          medium: "https://medium.com/@sarahwilson",
-        },
-        reason:
-          "I believe my marketing expertise can help other businesses grow their online presence.",
-        requestedAt: new Date("2024-11-28T14:20:00Z"),
-        status: "pending",
-      },
-    },
-    {
-      _id: "3",
-      name: "Mike Chen",
-      email: "mike.chen@example.com",
-      authorRequest: {
-        bio: "Full-stack developer and tech enthusiast. I enjoy building scalable applications and exploring new technologies.",
-        job: "Full Stack Developer",
-        topics: ["Node.js", "Python", "Database Design", "Cloud Computing"],
-        portfolio: "https://mikechen.dev",
-        socialLinks: {
-          twitter: "https://twitter.com/mikechen",
-          facebook: "https://facebook.com/mikechen",
-        },
-        reason:
-          "I want to document my learning journey and help other developers solve common problems.",
-        requestedAt: new Date("2024-11-25T09:15:00Z"),
-        status: "pending",
-      },
-    },
-  ]);
+  const [pendingUsers, setPendingUsers] = useState([]);
+  const [notification, setNotification] = useState(null);
 
-  const handleAction = (requestId, action) => {
-    setRequests((prev) =>
-      prev.map((req) =>
-        req._id === requestId
-          ? { ...req, authorRequest: { ...req.authorRequest, status: action } }
-          : req
-      )
-    );
-    setShowModal(false);
-    setSelectedRequest(null);
+  // Fetch pending users
+  useEffect(() => {
+    const fetchPendingUsers = async () => {
+      try {
+        const res = await axios.get(
+          "/api/dashboard/authors/request?status=pending",
+          {
+            withCredentials: true,
+          }
+        );
+        setPendingUsers(res.data);
+      } catch (err) {
+        console.log("Gagal mengambil data pengguna:", err);
+      }
+    };
+    fetchPendingUsers();
+  }, []);
+
+  // Handle Approve request
+  const handleApprove = async (userId) => {
+    try {
+      await axios.patch(
+        `/api/dashboard/authors/request/${userId}/approve`,
+        {},
+        {
+          withCredentials: true,
+        }
+      );
+      setNotification({
+        type: "success",
+        message: "Author request approved successfully.",
+      });
+
+      // Update the pending users list after approval
+      setPendingUsers((prevUsers) =>
+        prevUsers.filter((user) => user.id !== userId)
+      );
+    } catch (err) {
+      console.log("Gagal mengubah status pengguna:", err);
+      setNotification({
+        type: "error",
+        message: err.response?.data?.message || "Error approving request.",
+      });
+    }
   };
 
-  const handleDelete = (requestId) => {
-    setRequests((prev) => prev.filter((req) => req._id !== requestId));
+  // Handle Reject request
+  const handleReject = async (userId) => {
+    try {
+      await axios.patch(
+        `/api/dashboard/authors/request/${userId}/reject`,
+        {},
+        {
+          withCredentials: true,
+        }
+      );
+      setNotification({
+        type: "success",
+        message: "Author request rejected successfully.",
+      });
+
+      // Update the pending users list after rejection
+      setPendingUsers((prevUsers) =>
+        prevUsers.filter((user) => user.id !== userId)
+      );
+    } catch (err) {
+      console.log("Gagal mengubah status pengguna:", err);
+      setNotification({
+        type: "error",
+        message: err.response?.data?.message || "Error rejecting request.",
+      });
+    }
   };
 
   const openModal = (request) => {
@@ -137,6 +132,14 @@ const UserRequestsPage = () => {
     <>
       <Helmet title="Dashboard | Author Requests" />
 
+      {notification && (
+        <NotificationCard
+          type={notification.type}
+          message={notification.message}
+          onClose={() => setNotification(null)}
+        />
+      )}
+
       <div
         className={`min-h-screen transition-all duration-300 ${
           darkMode
@@ -154,7 +157,7 @@ const UserRequestsPage = () => {
 
         <div
           className={`transition-all duration-300 ${
-            sidebarOpen ? "lg:ml-64" : "ml-20"
+            sidebarOpen ? "lg:ml-64" : "ml-0 lg:ml-20"
           }`}
         >
           {/* Topbar */}
@@ -167,52 +170,52 @@ const UserRequestsPage = () => {
 
           {/* Main Content */}
           <main className="p-6 max-w-7xl mx-auto">
-              {/* Header */}
-              <div className="mb-8">
-                <h1
-                  className={`text-3xl font-bold ${
-                    darkMode ? "text-white" : "text-gray-800"
-                  }`}
-                >
-                  Author Requests
-                </h1>
-                <p
-                  className={`mt-2 ${
-                    darkMode ? "text-gray-400" : "text-gray-600"
-                  }`}
-                >
-                  Manage user requests to become authors
-                </p>
-              </div>
-
-              {/* Table Card */}
-              <div
-                className={`backdrop-blur-xl rounded-2xl border shadow-xl overflow-hidden ${
-                  darkMode
-                    ? "bg-gray-900/90 border-gray-700/50"
-                    : "bg-white/90 border-gray-200/50"
+            {/* Header */}
+            <div className="mb-8">
+              <h1
+                className={`text-3xl font-bold ${
+                  darkMode ? "text-white" : "text-gray-800"
                 }`}
               >
-                {/* Desktop Table */}
-                <DesktopTable
-                  darkMode={darkMode}
-                  requests={requests}
-                  formatDate={formatDate}
-                  handleAction={handleAction}
-                  openModal={openModal}
-                  handleDelete={handleDelete}
-                />
+                Author Requests
+              </h1>
+              <p
+                className={`mt-2 ${
+                  darkMode ? "text-gray-400" : "text-gray-600"
+                }`}
+              >
+                Manage user requests to become authors
+              </p>
+            </div>
 
-                {/* Mobile Cards */}
-                <MobileCard
-                  darkMode={darkMode}
-                  requests={requests}
-                  formatDate={formatDate}
-                  openModal={openModal}
-                  handleAction={handleAction}
-                  handleDelete={handleDelete}
-                />
-              </div>
+            {/* Table Card */}
+            <div
+              className={`backdrop-blur-xl rounded-2xl border shadow-xl overflow-hidden ${
+                darkMode
+                  ? "bg-gray-900/90 border-gray-700/50"
+                  : "bg-white/90 border-gray-200/50"
+              }`}
+            >
+              {/* Desktop Table */}
+              <DesktopTable
+                darkMode={darkMode}
+                requests={pendingUsers}
+                formatDate={formatDate}
+                openModal={openModal}
+                handleApprove={handleApprove}
+                handleReject={handleReject}
+              />
+
+              {/* Mobile Cards */}
+              <MobileCard
+                darkMode={darkMode}
+                requests={pendingUsers}
+                formatDate={formatDate}
+                openModal={openModal}
+                handleApprove={handleApprove}
+                handleReject={handleReject}
+              />
+            </div>
 
             {/* Modal */}
             {showModal && selectedRequest && (
@@ -222,7 +225,8 @@ const UserRequestsPage = () => {
                 selectedRequest={selectedRequest}
                 formatDate={formatDate}
                 getSocialIcon={getSocialIcon}
-                handleAction={handleAction}
+                handleApprove={(userId) => handleApprove(userId, closeModal)}
+                handleReject={(userId) => handleReject(userId, closeModal)}
               />
             )}
           </main>
