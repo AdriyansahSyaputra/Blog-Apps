@@ -9,14 +9,14 @@ const NotificationCard = ({ type, message, onClose }) => {
     // Start enter animation
     const enterTimer = setTimeout(() => setIsAnimating(true), 100);
 
-    // Start exit sequence after 2.5 seconds
+    // Start exit sequence after 2 seconds
     const exitTimer = setTimeout(() => {
       setIsAnimating(false);
       setTimeout(() => {
         setIsVisible(false);
         onClose();
       }, 300); // Matches the transition duration
-    }, 2500);
+    }, 2000);
 
     return () => {
       clearTimeout(enterTimer);
@@ -30,7 +30,7 @@ const NotificationCard = ({ type, message, onClose }) => {
   const statusColor = isSuccess ? "green" : "red";
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
+    <div className="fixed inset-0 flex items-center justify-center z-[9999] pointer-events-none">
       {/* Backdrop */}
       <div
         className={`absolute inset-0 bg-black transition-opacity duration-300 ${

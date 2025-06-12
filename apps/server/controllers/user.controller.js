@@ -1,5 +1,11 @@
 import User from "../models/user.model.js";
 import bcrypt from "bcrypt";
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Fungsi untuk submit request author
 export const submitAuthorRequest = async (req, res) => {
@@ -150,6 +156,63 @@ export const addUser = async (req, res) => {
   }
 };
 
+// Update user
+export const updateUser = async (req, res) => {
+  const { id } = req.params;
+  const { name, username, email, phone, birthday, role, status, removeAvatar } =
+    req.body;
+  const avatar = req.file ? req.file.filename : undefined;
+
+  try {
+    const user = await User.findById(id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    // Hapus avatar lama jika ada file baru ATAU user minta hapus foto
+    if (avatar || removeAvatar === "true") {
+      if (user.avatar) {
+        const filePath = path.join(__dirname, "../uploads/img/", user.avatar);
+        fs.unlink(filePath, (err) => {
+          if (err) console.error("Gagal menghapus file:", err.message);
+        });
+        user.avatar = null;
+      }
+    }
+
+    // Set avatar baru jika ada upload
+    if (avatar) {
+      user.avatar = avatar;
+    }
+
+    user.name = name;
+    user.username = username;
+    user.email = email;
+    user.phone = phone;
+    user.birthday = birthday;
+    user.role = role;
+    user.status = status;
+    await user.save();
+
+    return res.status(200).json({ message: "User updated successfully." });
+  } catch (err) {
+    console.log(err);
+    // Hapus file jika terjadi error saat update
+    if (req.file) {
+      const filePath = path.join(
+        __dirname,
+        "../uploads/img/",
+        req.file.filename
+      );
+      fs.unlink(filePath, (err) => {
+        if (err) console.error("Gagal menghapus file:", err.message);
+      });
+    }
+    return res.status(500).json({ message: "Something went wrong." });
+  }
+};
+
 // Ambil semua data users
 export const getAllUsers = async (req, res) => {
   try {
@@ -168,7 +231,25 @@ export const getAllUsers = async (req, res) => {
 // Delete user
 export const deleteUser = async (req, res) => {
   try {
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    // Hapus file avatar jika ada
+    if (user.avatar) {
+      const filePath = path.join(__dirname, "../uploads/img/", user.avatar);
+      fs.unlink(filePath, (err) => {
+        if (err) {
+          console.error("Gagal menghapus file:", err.message);
+        }
+      });
+    }
+
+    // Hapus user dari database
     await User.findByIdAndDelete(req.params.id);
+
     return res.status(200).json({ message: "User deleted successfully." });
   } catch (err) {
     console.log(err);

@@ -6,6 +6,7 @@ import Sidebar from "../../components/Templates/dashboard/Sidebar";
 import Topbar from "../../components/Templates/dashboard/Topbar";
 import { useTheme } from "../../context/ThemeContext";
 import NotificationCard from "../../components/Fragments/NotificationCard";
+import UserUpdateModal from "../../components/Layouts/dashboard/User/UserUpdateModal";
 import { useState, useEffect } from "react";
 import axios from "axios";
 
@@ -19,33 +20,133 @@ const UserPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [users, setUsers] = useState([]);
   const [notification, setNotification] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [selectedImage, setSelectedImage] = useState(null);
   const usersPerPage = 8;
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const res = await axios.get("/api/dashboard/users", {
-          withCredentials: true,
-        });
-        const userWithDates = res.data.map((user) => ({
-          ...user,
-          createdAt: new Date(user.createdAt),
-          updatedAt: new Date(user.updatedAt),
-        }));
-        setUsers(userWithDates);
-      } catch (err) {
-        console.log("Gagal mengambil data pengguna:", err);
+  const [formData, setFormData] = useState({
+    name: "",
+    username: "",
+    email: "",
+    phone: "",
+    birthday: "",
+    role: "",
+    status: "",
+    avatar: "",
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [name]: value,
+    }));
+  };
+
+  // Ambil data user
+  const handleEditUser = (user) => {
+    setFormData(user);
+    setModalOpen(true);
+  };
+
+  // Handle save
+  const handleSave = async () => {
+    try {
+      const formDataToSend = new FormData();
+
+      // Tambahkan semua field ke FormData
+      formDataToSend.append("name", formData.name);
+      formDataToSend.append("username", formData.username);
+      formDataToSend.append("email", formData.email);
+      formDataToSend.append("phone", formData.phone);
+      formDataToSend.append("birthday", formData.birthday);
+      formDataToSend.append("role", formData.role);
+      formDataToSend.append("status", formData.status);
+
+      // Tambahkan file jika ada (File dari <input type="file" />)
+      if (formData.avatar instanceof File) {
+        formDataToSend.append("avatar", formData.avatar);
       }
-    };
+
+      // Tambahkan flag removeAvatar
+      formDataToSend.append(
+        "removeAvatar",
+        formData.removeAvatar ? "true" : "false"
+      );
+
+      // Kirim ke backend
+      await axios.put(`/api/dashboard/users/${formData._id}`, formDataToSend, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true,
+      });
+
+      await fetchUsers();
+
+      setModalOpen(false);
+
+      setNotification({
+        type: "success",
+        message: "User updated successfully.",
+      });
+    } catch (err) {
+      let errorMessage = "Network error. Please check your connection.";
+      let fieldErrors = {};
+
+      if (err.response) {
+        if (err.response.data?.errors) {
+          fieldErrors = err.response.data.errors;
+          errorMessage = "Please fix the form errors";
+        } else {
+          errorMessage = err.response.data?.message || errorMessage;
+        }
+      } else if (err.request) {
+        errorMessage = "Server is not responding. Please try later.";
+      }
+
+      setErrors(fieldErrors);
+      setNotification({ type: "error", message: errorMessage });
+    }
+  };
+
+  const handleCancel = () => {
+    setModalOpen(false);
+  };
+
+  // Fetch users
+  const fetchUsers = async () => {
+    try {
+      const res = await axios.get("/api/dashboard/users", {
+        withCredentials: true,
+      });
+      const userWithDates = res.data.map((user) => ({
+        ...user,
+        createdAt: new Date(user.createdAt),
+        updatedAt: new Date(user.updatedAt),
+      }));
+      setUsers(userWithDates);
+    } catch (err) {
+      console.log("Gagal mengambil data pengguna:", err);
+    }
+  };
+
+  useEffect(() => {
     fetchUsers();
   }, []);
 
   // Delete User
   const handleDeleteUser = async (userId) => {
     try {
-      await axios.delete(`/api/dashboard/users/${userId}`, {
-        withCredentials: true,
-      });
+      if (window.confirm("Are you sure you want to delete this user?")) {
+        await axios.delete(`/api/dashboard/users/${userId}`, {
+          withCredentials: true,
+        });
+      }
+
+      await fetchUsers();
+
       setNotification({
         type: "success",
         message: "User deleted successfully.",
@@ -57,7 +158,34 @@ const UserPage = () => {
         message: err.response?.data?.message || "Error deleting user.",
       });
     }
-  }
+  };
+
+  // Upload image
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Preview image
+      const reader = new FileReader();
+      reader.onload = (e) => setSelectedImage(e.target.result);
+      reader.readAsDataURL(file);
+
+      // Simpan ke formData
+      setFormData((prev) => ({
+        ...prev,
+        avatar: file,
+      }));
+    }
+  };
+
+  // Remove image
+  const removeImage = () => {
+    setSelectedImage(null);
+    setFormData((prev) => ({
+      ...prev,
+      avatar: null,
+      removeAvatar: true,
+    }));
+  };
 
   // Filter data pengguna
   const filteredUsers = users.filter((user) => {
@@ -141,6 +269,7 @@ const UserPage = () => {
               users={currentUsers}
               darkMode={darkMode}
               handleDeleteUser={handleDeleteUser}
+              handleEditUser={handleEditUser}
             />
 
             <UserPagination
@@ -156,6 +285,21 @@ const UserPage = () => {
           </main>
         </div>
       </div>
+
+      {/* Modal update */}
+      {modalOpen && (
+        <UserUpdateModal
+          darkMode={darkMode}
+          handleCancel={handleCancel}
+          handleChange={handleChange}
+          formData={formData}
+          handleSave={handleSave}
+          errors={errors}
+          selectedImage={selectedImage}
+          removeImage={removeImage}
+          handleImageUpload={handleImageUpload}
+        />
+      )}
     </>
   );
 };

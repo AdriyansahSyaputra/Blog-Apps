@@ -7,9 +7,6 @@ import {
   UserIcon,
   Mail,
   Phone,
-  Globe,
-  Eye,
-  EyeOff,
   Shield,
   Lock,
 } from "lucide-react";

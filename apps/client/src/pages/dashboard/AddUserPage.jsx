@@ -7,8 +7,10 @@ import { ArrowLeft } from "lucide-react";
 import FormAddUser from "../../components/Fragments/FormAddUser";
 import axios from "axios";
 import NotificationCard from "../../components/Fragments/NotificationCard";
+import { useNavigate } from "react-router-dom";
 
 const AddUserPage = () => {
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState("Dashboard");
   const { darkMode, toggleTheme } = useTheme();
@@ -77,6 +79,11 @@ const AddUserPage = () => {
         type: "success",
         message: "User added successfully.",
       });
+
+      // Set notifikasi lalu redirect
+      setTimeout(() => {
+        navigate("/dashboard/users");
+      }, 2000);
 
       setFormData({
         name: "",

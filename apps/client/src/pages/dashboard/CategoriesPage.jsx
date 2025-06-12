@@ -2,22 +2,15 @@ import Sidebar from "../../components/Templates/dashboard/Sidebar";
 import Topbar from "../../components/Templates/dashboard/Topbar";
 import { useTheme } from "../../context/ThemeContext";
 import { Helmet } from "react-helmet-async";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CategoryModal from "../../components/Layouts/dashboard/Category/CategoryModal";
-import {
-  Grid3X3,
-  List,
-  Plus,
-  Search,
-  Tag,
-  Hash,
-  TrendingUp,
-  Archive,
-} from "lucide-react";
+import { Tag, Hash, TrendingUp, Archive } from "lucide-react";
 import CategoryCard from "../../components/Layouts/dashboard/Category/CategoryCard";
 import StatsCard from "../../components/Layouts/dashboard/Category/StatsCard";
 import axios from "axios";
 import NotificationCard from "../../components/Fragments/NotificationCard";
+import CategoryHeader from "../../components/Layouts/dashboard/Category/CategoryHeader";
+import SearchViewControl from "../../components/Layouts/dashboard/Category/SearchViewControl";
 
 const CategoriesPage = () => {
   const { darkMode, toggleTheme } = useTheme();
@@ -32,7 +25,6 @@ const CategoriesPage = () => {
 
   const [formData, setFormData] = useState({
     name: "",
-    slug: "",
     description: "",
     color: "",
   });
@@ -80,32 +72,127 @@ const CategoriesPage = () => {
     "#84CC16",
   ];
 
-  // Create Category
-  const handleCreateCategory = async (e) => {
-    e.preventDefault();
-
+  const fetchCategories = async () => {
     try {
-      await axios.get("/api/dashboard/users/new", formData, {
+      const response = await axios.get("/api/dashboard/categories", {
+        withCredentials: true,
+      });
+      setCategories(response.data);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
+
+  // Load semua data category saat pertama kali
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  // Create Category
+  const handleCreateCategory = async (data) => {
+    try {
+      await axios.post("/api/dashboard/categories/new", data, {
         withCredentials: true,
       });
 
       setNotification({
         type: "success",
-        message: "User added successfully.",
+        message: "Category added successfully.",
       });
+
+      await fetchCategories();
 
       setFormData({
         name: "",
-        slug: "",
         description: "",
         color: "",
       });
+      setShowModal(false);
     } catch (error) {
-      console.error("Failed to add user:", error);
+      console.error("Error adding category:", error);
       setNotification({
         type: "error",
-        message: "Failed to add user.",
+        message: "Error adding category.",
       });
+    }
+  };
+
+  // Handle Update Category
+  const handleUpdateCataegory = async (data) => {
+    try {
+      await axios.put(
+        `/api/dashboard/categories/${editingCategory._id}`,
+        data,
+        {
+          withCredentials: true,
+        }
+      );
+
+      await fetchCategories();
+
+      setNotification({
+        type: "success",
+        message: "Category updated successfully.",
+      });
+
+      setEditingCategory(null);
+      setFormData({
+        name: "",
+        description: "",
+        color: "",
+      });
+      setShowModal(false);
+    } catch (err) {
+      console.error("Error updating category:", err);
+      setNotification({
+        type: "error",
+        message: "Error updating category.",
+      });
+    }
+  };
+
+  const handleDeleteCategory = async (category) => {
+    try {
+      if (
+        window.confirm(`Are you sure you want to delete "${category.name}"?`)
+      ) {
+        axios.delete(`/api/dashboard/categories/${category._id}`, {
+          withCredentials: true,
+        });
+
+        await fetchCategories();
+
+        setNotification({
+          type: "success",
+          message: "Category deleted successfully.",
+        });
+      }
+    } catch (err) {
+      console.error("Error deleting category:", err);
+      setNotification({
+        type: "error",
+        message: "Error deleting category.",
+      });
+    }
+  };
+
+  // Edit Category
+  const handleEditCategory = (category) => {
+    setEditingCategory(category);
+    setFormData({
+      name: category.name,
+      description: category.description,
+      color: category.color,
+    });
+    setShowModal(true);
+  };
+
+  // Save Category
+  const handleSaveCategory = (data) => {
+    if (editingCategory) {
+      handleUpdateCataegory({ ...data, _id: editingCategory._id });
+    } else {
+      handleCreateCategory(data);
     }
   };
 
@@ -113,26 +200,8 @@ const CategoriesPage = () => {
   const filteredCategories = categories.filter(
     (category) =>
       category.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      category.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      category.subcategories.some((sub) =>
-        sub.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+      category.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
-  const handleEditCategory = (category) => {
-    setEditingCategory(category);
-    setShowModal(true);
-  };
-
-  const handleDeleteCategory = (category) => {
-    if (window.confirm(`Are you sure you want to delete "${category.name}"?`)) {
-      console.log("Delete category:", category.id);
-    }
-  };
-
-  const handleSaveCategory = (formData) => {
-    console.log("Save category:", formData);
-  };
 
   return (
     <>
@@ -177,35 +246,11 @@ const CategoriesPage = () => {
 
           <main className="p-6 space-y-6">
             {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div>
-                <h1
-                  className={`text-3xl font-bold ${
-                    darkMode ? "text-white" : "text-gray-800"
-                  }`}
-                >
-                  Categories Management
-                </h1>
-                <p
-                  className={`text-sm mt-1 ${
-                    darkMode ? "text-gray-400" : "text-gray-600"
-                  }`}
-                >
-                  Organize and manage your blog categories
-                </p>
-              </div>
-
-              <button
-                onClick={() => {
-                  setEditingCategory(null);
-                  setShowModal(true);
-                }}
-                className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
-              >
-                <Plus className="w-5 h-5" />
-                <span>New Category</span>
-              </button>
-            </div>
+            <CategoryHeader
+              darkMode={darkMode}
+              setShowModal={setShowModal}
+              setEditingCategory={setEditingCategory}
+            />
 
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -215,53 +260,13 @@ const CategoriesPage = () => {
             </div>
 
             {/* Search and View Controls */}
-            <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-              <div className="relative flex-1 max-w-md">
-                <Search
-                  className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${
-                    darkMode ? "text-gray-400" : "text-gray-500"
-                  }`}
-                />
-                <input
-                  type="text"
-                  placeholder="Search categories..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className={`w-full pl-10 pr-4 py-3 rounded-xl border backdrop-blur-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 ${
-                    darkMode
-                      ? "bg-gray-900/50 border-gray-700/50 text-white placeholder-gray-400"
-                      : "bg-white/50 border-gray-200/50 text-gray-800 placeholder-gray-500"
-                  }`}
-                />
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => setViewMode("grid")}
-                  className={`p-3 rounded-xl transition-all duration-200 ${
-                    viewMode === "grid"
-                      ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white"
-                      : darkMode
-                      ? "bg-gray-900/50 border border-gray-700/50 text-gray-400 hover:text-white"
-                      : "bg-white/50 border border-gray-200/50 text-gray-600 hover:text-gray-800"
-                  }`}
-                >
-                  <Grid3X3 className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={() => setViewMode("list")}
-                  className={`p-3 rounded-xl transition-all duration-200 ${
-                    viewMode === "list"
-                      ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white"
-                      : darkMode
-                      ? "bg-gray-900/50 border border-gray-700/50 text-gray-400 hover:text-white"
-                      : "bg-white/50 border border-gray-200/50 text-gray-600 hover:text-gray-800"
-                  }`}
-                >
-                  <List className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
+            <SearchViewControl
+              darkMode={darkMode}
+              setSearchQuery={setSearchQuery}
+              searchQuery={searchQuery}
+              setViewMode={setViewMode}
+              viewMode={viewMode}
+            />
 
             {/* Results Count */}
             <div
@@ -317,7 +322,6 @@ const CategoriesPage = () => {
               colors={colors}
               formData={formData}
               setFormData={setFormData}
-              handleCreateCategory={handleCreateCategory}
             />
           </main>
         </div>

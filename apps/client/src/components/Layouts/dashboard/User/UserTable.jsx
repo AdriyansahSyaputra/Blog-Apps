@@ -1,6 +1,6 @@
 import { CheckCircle2, XCircle, Edit, Trash2 } from "lucide-react";
 
-const UserTable = ({ users, darkMode, onEditUser, handleDeleteUser }) => {
+const UserTable = ({ users, darkMode, handleDeleteUser, handleEditUser }) => {
   const getStatusIcon = (status) => {
     return status === "active" ? (
       <CheckCircle2 className="w-4 h-4 text-green-500" />
@@ -142,14 +142,14 @@ const UserTable = ({ users, darkMode, onEditUser, handleDeleteUser }) => {
         >
           {users.map((user) => (
             <div
-              key={user.id}
+              key={user._id}
               className="grid grid-cols-12 items-center px-4 py-3 hover:bg-opacity-50 transition-colors duration-200 group"
             >
               <div className="col-span-4 md:col-span-3 flex items-center">
                 <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center mr-3">
                   {user.avatar ? (
                     <img
-                      src={user.avatar}
+                      src={`${import.meta.env.VITE_BASE_URL}/uploads/img/${user.avatar}`}
                       alt={user.name}
                       className="w-full h-full rounded-full object-cover"
                     />
@@ -212,7 +212,7 @@ const UserTable = ({ users, darkMode, onEditUser, handleDeleteUser }) => {
               <div className="col-span-2 text-right">
                 <div className="flex items-center justify-end space-x-2">
                   <button
-                    onClick={() => onEditUser(user.id)}
+                    onClick={() => handleEditUser(user)}
                     className={`p-1 rounded-full ${
                       darkMode
                         ? "hover:bg-gray-700 text-gray-300"

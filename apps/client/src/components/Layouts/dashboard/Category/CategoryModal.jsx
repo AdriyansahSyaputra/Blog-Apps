@@ -45,7 +45,14 @@ const CategoryModal = ({
           </button>
         </div>
 
-        <div className="space-y-4">
+        <form
+          onSubmit={ async (e) => {
+            e.preventDefault();
+            const success = await onSave(formData);
+            if (success) onClose();
+          }}
+          className="space-y-4"
+        >
           <div>
             <label
               className={`block text-sm font-medium mb-2 ${
@@ -131,17 +138,13 @@ const CategoryModal = ({
               Cancel
             </button>
             <button
-              type="button"
-              onClick={() => {
-                onSave(formData);
-                onClose();
-              }}
+              type="submit"
               className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl hover:shadow-lg transition-all duration-200"
             >
               {category ? "Update" : "Create"}
             </button>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );

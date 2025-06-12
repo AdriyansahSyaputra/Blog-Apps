@@ -21,7 +21,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // Static file
-app.use("/uploads", express.static("uploads"));
+app.use("/uploads/img", express.static("uploads/img"));
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
