@@ -1,4 +1,5 @@
 import { Upload, Tag, X, Image } from "lucide-react";
+import RichTextEditor from "./RichTextEditor";
 
 const FormAddPost = ({
   darkMode,
@@ -16,6 +17,7 @@ const FormAddPost = ({
   setTagInput,
   handleRemoveTag,
 }) => {
+
   return (
     <form className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       <div className="lg:col-span-2 space-y-6">
@@ -101,34 +103,10 @@ const FormAddPost = ({
           </div>
         </div>
 
-        {/* Content Editor */}
-        <div
-          className={`p-6 rounded-2xl border ${
-            darkMode
-              ? "bg-gray-900/50 border-gray-700/50"
-              : "bg-white border-gray-200"
-          }`}
-        >
-          <h2
-            className={`text-lg font-semibold mb-4 ${
-              darkMode ? "text-white" : "text-gray-900"
-            }`}
-          >
-            Content
-          </h2>
-
-          <textarea
-            value={formData.content}
-            onChange={(e) => handleInputChange("content", e.target.value)}
-            placeholder="Write your post content here..."
-            rows={12}
-            className={`w-full px-4 py-3 rounded-xl border transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 resize-none ${
-              darkMode
-                ? "bg-gray-800/50 border-gray-700 text-white placeholder-gray-400"
-                : "bg-gray-50/50 border-gray-200 text-gray-900 placeholder-gray-500"
-            }`}
-          />
-        </div>
+        <RichTextEditor
+          value={formData.content}
+          onChange={(html) => setFormData({ ...formData, content: html })}
+        />
       </div>
 
       {/* Sidebar */}
