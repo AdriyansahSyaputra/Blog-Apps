@@ -1,26 +1,5 @@
 @import "tailwindcss";
 
-/* Tooltip styling */
-.tooltip {
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #1f2937;
-    color: white;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    white-space: nowrap;
-    opacity: 0;
-    transition: opacity 0.2s;
-    pointer-events: none;
-  }
-  
-  button:hover .tooltip {
-    opacity: 1;
-  }
-  
   /* Placeholder styling */
   .ProseMirror p.is-editor-empty:first-child::before {
     content: attr(data-placeholder);
@@ -28,11 +7,4 @@
     color: #9ca3af;
     pointer-events: none;
     height: 0;
-  }
-  
-  /* Prose styling */
-  .prose :where(p):not(:where([class~="not-prose"] *)) {
-    margin-top: 1em;
-    margin-bottom: 1em;
-    line-height: 1.75;
   }

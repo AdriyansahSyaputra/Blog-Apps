@@ -1,7 +1,7 @@
 import Sidebar from "../../components/Templates/dashboard/Sidebar";
 import Topbar from "../../components/Templates/dashboard/Topbar";
 import { useTheme } from "../../context/ThemeContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   FileText,
   TrendingUp,
@@ -15,7 +15,10 @@ import {
 import PostCard from "../../components/Layouts/dashboard/Post/PostCard";
 import FilterDropdown from "../../components/Layouts/dashboard/Post/FilterDropdown";
 import StatsCard from "../../components/Layouts/dashboard/Post/StatsCard";
+import NotificationCard from "../../components/Fragments/NotificationCard";
 import { Helmet } from "react-helmet-async";
+import { Link } from "react-router-dom";
+import axios from "axios";
 
 const Post = () => {
   const { darkMode, toggleTheme } = useTheme();
@@ -24,6 +27,8 @@ const Post = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
   const [showFilter, setShowFilter] = useState(false);
+  const [notification, setNotification] = useState(null);
+  const [posts, setPosts] = useState([]);
 
   // Sample data
   const stats = [
@@ -33,92 +38,43 @@ const Post = () => {
     { icon: Star, title: "Featured", value: "24", change: 15 },
   ];
 
-  const posts = [
-    {
-      id: 1,
-      title: "Getting Started with React Hooks: A Complete Guide",
-      excerpt:
-        "Learn how to use React Hooks effectively in your applications. This comprehensive guide covers useState, useEffect, and custom hooks.",
-      status: "published",
-      date: "2024-01-15",
-      author: "John Doe",
-      views: "2.1k",
-      likes: "156",
-      comments: "23",
-      tags: ["React", "JavaScript", "Web Development", "Frontend"],
-      image: null,
-    },
-    {
-      id: 2,
-      title: "Modern CSS Techniques for Better Web Design",
-      excerpt:
-        "Explore the latest CSS features including Grid, Flexbox, and CSS Variables to create stunning web layouts.",
-      status: "draft",
-      date: "2024-01-12",
-      author: "Jane Smith",
-      views: "892",
-      likes: "67",
-      comments: "12",
-      tags: ["CSS", "Web Design", "Frontend"],
-      image: null,
-    },
-    {
-      id: 3,
-      title: "Building Scalable APIs with Node.js and Express",
-      excerpt:
-        "A deep dive into creating robust and scalable backend services using Node.js, Express, and MongoDB.",
-      status: "published",
-      date: "2024-01-10",
-      author: "Mike Johnson",
-      views: "3.4k",
-      likes: "234",
-      comments: "45",
-      tags: ["Node.js", "Express", "Backend", "API"],
-      image: null,
-    },
-    {
-      id: 4,
-      title: "The Future of Web Development in 2024",
-      excerpt:
-        "Discover the trending technologies and frameworks that will shape web development in the coming year.",
-      status: "scheduled",
-      date: "2024-01-20",
-      author: "Sarah Wilson",
-      views: "0",
-      likes: "0",
-      comments: "0",
-      tags: ["Trends", "Web Development", "Technology"],
-      image: null,
-    },
-    {
-      id: 5,
-      title: "Mastering TypeScript for React Development",
-      excerpt:
-        "Learn how to integrate TypeScript with React for better type safety and developer experience.",
-      status: "published",
-      date: "2024-01-08",
-      author: "Alex Brown",
-      views: "1.8k",
-      likes: "123",
-      comments: "18",
-      tags: ["TypeScript", "React", "JavaScript"],
-      image: null,
-    },
-    {
-      id: 6,
-      title: "Database Design Best Practices",
-      excerpt:
-        "Essential principles for designing efficient and maintainable database schemas.",
-      status: "archived",
-      date: "2023-12-28",
-      author: "David Lee",
-      views: "945",
-      likes: "78",
-      comments: "9",
-      tags: ["Database", "SQL", "Backend"],
-      image: null,
-    },
-  ];
+  // Fetch posts from the API
+  const fetchPosts = async () => {
+    try {
+      const response = await axios.get("/api/dashboard/posts", {
+        withCredentials: true,
+      });
+      setPosts(response.data);
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  // handle Delete Post
+  const handleDeletePost = async (postId) => {
+    try {
+      await axios.delete(`/api/dashboard/posts/${postId}`, {
+        withCredentials: true,
+      });
+      fetchPosts();
+
+      setNotification({
+        type: "success",
+        message: "Post deleted successfully.",
+      });
+    } catch (error) {
+      console.error("Error deleting post:", error);
+
+      setNotification({
+        type: "error",
+        message: "Error deleting post.",
+      });
+    }
+  };
 
   // Filter posts based on search and active filter
   const filteredPosts = posts.filter((post) => {
@@ -138,6 +94,14 @@ const Post = () => {
   return (
     <>
       <Helmet title="Dashboard | Post" />
+
+      {notification && (
+        <NotificationCard
+          type={notification.type}
+          message={notification.message}
+          onClose={() => setNotification(null)}
+        />
+      )}
 
       <div
         className={`min-h-screen transition-all duration-300 ${
@@ -188,10 +152,13 @@ const Post = () => {
                 </p>
               </div>
 
-              <button className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl hover:shadow-lg transition-all duration-200 flex items-center space-x-2">
+              <Link
+                to="/dashboard/posts/new"
+                className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
+              >
                 <Plus className="w-5 h-5" />
                 <span>New Post</span>
-              </button>
+              </Link>
             </div>
 
             {/* Stats Grid */}
@@ -263,7 +230,12 @@ const Post = () => {
             {/* Posts Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
               {filteredPosts.map((post) => (
-                <PostCard key={post.id} post={post} darkMode={darkMode} />
+                <PostCard
+                  key={post._id}
+                  post={post}
+                  darkMode={darkMode}
+                  onDelete={handleDeletePost}
+                />
               ))}
             </div>
 

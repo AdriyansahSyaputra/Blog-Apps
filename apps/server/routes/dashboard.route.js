@@ -18,10 +18,12 @@ import {
   getAllCategories,
   deleteCategory,
 } from "../controllers/category.controller.js";
-import upload from "../middlewares/upload.middleware.js";
+import { createPost, getAllPosts, deletePost } from "../controllers/post.controller.js";
+import { uploadThumbnail, uploadProfile } from "../middlewares/upload.middleware.js";
 import { addUserValidator } from "../validators/addUser.validator.js";
 import { validateRequest } from "../middlewares/validate.middleware.js";
 import { updateUserValidator } from "../validators/updateUser.validator.js";
+import { postValidator } from "../validators/post.validator.js";
 
 const router = express.Router();
 
@@ -57,7 +59,7 @@ router.post(
   "/users/new",
   authenticateUser,
   authorizeRoles("admin"),
-  upload.single("avatar"),
+  uploadProfile.single("avatar"),
   addUserValidator,
   validateRequest,
   addUser
@@ -68,7 +70,7 @@ router.put(
   "/users/:id",
   authenticateUser,
   authorizeRoles("admin"),
-  upload.single("avatar"),
+  uploadProfile.single("avatar"),
   updateUserValidator,
   validateRequest,
   updateUser
@@ -86,7 +88,7 @@ router.delete(
 router.get(
   "/categories",
   authenticateUser,
-  authorizeRoles("admin"),
+  authorizeRoles("admin", "author"),
   getAllCategories
 );
 
@@ -112,6 +114,33 @@ router.delete(
   authenticateUser,
   authorizeRoles("admin"),
   deleteCategory
+);
+
+// create post
+router.post(
+  "/posts/new",
+  authenticateUser,
+  authorizeRoles("admin", "author"),
+  uploadThumbnail.single("featuredImage"),
+  postValidator,
+  validateRequest,
+  createPost
+);
+
+// Get All Posts
+router.get(
+  "/posts",
+  authenticateUser,
+  authorizeRoles("admin", "author"),
+  getAllPosts
+)
+
+// Delete Post
+router.delete(
+  "/posts/:id",
+  authenticateUser,
+  authorizeRoles("admin", "author"),
+  deletePost
 );
 
 export default router;

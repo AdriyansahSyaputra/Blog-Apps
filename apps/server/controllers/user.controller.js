@@ -146,7 +146,7 @@ export const addUser = async (req, res) => {
 
     // Hapus file jika terjadi error saat save
     if (req.file) {
-      const filePath = path.join(__dirname, "../uploads/", req.file.filename);
+      const filePath = path.join(__dirname, "../uploads/img/", req.file.filename);
       fs.unlink(filePath, (err) => {
         if (err) console.error("Gagal menghapus file:", err.message);
       });

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Calendar, Heart, MessageCircle, Image, MoreHorizontal, Tag, Eye } from "lucide-react";
 import PostActionMenu from "./PostActionMenu";
 
-const PostCard = ({ post, darkMode }) => {
+const PostCard = ({ post, darkMode, onDelete }) => {
   const [showActions, setShowActions] = useState(false);
 
   const statusColors = {
@@ -25,14 +25,14 @@ const PostCard = ({ post, darkMode }) => {
         <div className="flex items-center space-x-3">
           <div
             className={`w-12 h-12 rounded-xl overflow-hidden ${
-              post.image
+              post.featuredImage
                 ? ""
                 : "bg-gradient-to-r from-purple-400 to-pink-400 flex items-center justify-center"
             }`}
           >
-            {post.image ? (
+            {post.featuredImage ? (
               <img
-                src={post.image}
+                src={`${import.meta.env.VITE_BASE_URL}${post.featuredImage}`}
                 alt={post.title}
                 className="w-full h-full object-cover"
               />
@@ -59,7 +59,7 @@ const PostCard = ({ post, darkMode }) => {
                   darkMode ? "text-gray-400" : "text-gray-500"
                 }`}
               >
-                {post.date}
+                {post.createdAt}
               </span>
             </div>
           </div>
@@ -81,7 +81,7 @@ const PostCard = ({ post, darkMode }) => {
             isOpen={showActions}
             onClose={() => setShowActions(false)}
             onEdit={() => console.log("Edit:", post.id)}
-            onDelete={() => console.log("Delete:", post.id)}
+            onDelete={() => onDelete(post._id)}
             onView={() => console.log("View:", post.id)}
           />
         </div>
@@ -145,7 +145,7 @@ const PostCard = ({ post, darkMode }) => {
                 darkMode ? "text-gray-400" : "text-gray-600"
               }`}
             >
-              {post.views}
+              155
             </span>
           </div>
           <div className="flex items-center space-x-1">
@@ -159,7 +159,7 @@ const PostCard = ({ post, darkMode }) => {
                 darkMode ? "text-gray-400" : "text-gray-600"
               }`}
             >
-              {post.likes}
+              254
             </span>
           </div>
           <div className="flex items-center space-x-1">
@@ -173,7 +173,7 @@ const PostCard = ({ post, darkMode }) => {
                 darkMode ? "text-gray-400" : "text-gray-600"
               }`}
             >
-              {post.comments}
+              54
             </span>
           </div>
         </div>
@@ -185,7 +185,7 @@ const PostCard = ({ post, darkMode }) => {
               darkMode ? "text-gray-400" : "text-gray-500"
             }`}
           >
-            {post.author}
+            {post.author.name}
           </span>
         </div>
       </div>

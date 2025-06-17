@@ -2,17 +2,25 @@ import Sidebar from "../../components/Templates/dashboard/Sidebar";
 import Topbar from "../../components/Templates/dashboard/Topbar";
 import { useTheme } from "../../context/ThemeContext";
 import { Helmet } from "react-helmet-async";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Save, Eye, Calendar, FileText, Check } from "lucide-react";
 import FormAddPost from "../../components/Fragments/FormAddPost";
+import NotificationCard from "../../components/Fragments/NotificationCard";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const AddPostPage = () => {
   const { darkMode, toggleTheme } = useTheme();
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState("Dashboard");
+  const [categories, setCategories] = useState([]);
+  const [notification, setNotification] = useState(null);
+  const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
     title: "",
     slug: "",
+    slugManuallyEdited: false,
     content: "",
     excerpt: "",
     status: "draft",
@@ -21,21 +29,26 @@ const AddPostPage = () => {
     featuredImage: null,
     categories: [],
     tags: [],
-    metaTitle: "",
-    metaDescription: "",
   });
 
   const [tagInput, setTagInput] = useState("");
   const [previewImage, setPreviewImage] = useState(null);
 
-  const categories = [
-    { id: 1, name: "Technology", slug: "technology" },
-    { id: 2, name: "Lifestyle", slug: "lifestyle" },
-    { id: 3, name: "Business", slug: "business" },
-    { id: 4, name: "Health", slug: "health" },
-    { id: 5, name: "Travel", slug: "travel" },
-    { id: 6, name: "Food", slug: "food" },
-  ];
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get("/api/dashboard/categories", {
+        withCredentials: true,
+      });
+      setCategories(response.data);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
+
+  // Load semua data category saat pertama kali
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
   const statusOptions = [
     { value: "draft", label: "Draft", icon: FileText, color: "text-gray-500" },
@@ -54,22 +67,23 @@ const AddPostPage = () => {
   ];
 
   const handleInputChange = (field, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-
-    // Auto-generate slug from title
-    if (field === "title") {
-      const slug = value
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/(^-|-$)/g, "");
-      setFormData((prev) => ({
+    setFormData((prev) => {
+      const updated = {
         ...prev,
-        slug: slug,
-      }));
-    }
+        [field]: value,
+      };
+
+      if (field === "title" && (!prev.slugManuallyEdited || !prev.slug)) {
+        const slug = value
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/(^-|-$)/g, "");
+
+        updated.slug = slug;
+      }
+
+      return updated;
+    });
   };
 
   const handleCategoryToggle = (categoryId) => {
@@ -117,14 +131,58 @@ const AddPostPage = () => {
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Add form validation and submission logic here
-    console.log("Form submitted:", formData);
+  const handleSubmit = async () => {
+    setErrors({});
+    try {
+      await axios.post("/api/dashboard/posts/new", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true,
+      });
+
+      setNotification({
+        type: "success",
+        message: "Post added successfully.",
+      });
+
+      // Set notifikasi lalu redirect
+      setTimeout(() => {
+        navigate("/dashboard/posts");
+      }, 2000);
+    } catch (err) {
+      let errorMessage = "Network error. Please check your connection.";
+      let fieldErrors = {};
+
+      if (err.response) {
+        // Error dari server (4xx/5xx)
+        if (err.response.data?.errors) {
+          fieldErrors = err.response.data.errors;
+          errorMessage = "Please fix the form errors";
+        } else {
+          errorMessage = err.response.data?.message || errorMessage;
+        }
+      } else if (err.request) {
+        // Request dibuat tapi tidak ada response (timeout, dll)
+        errorMessage = "Server is not responding. Please try later.";
+      }
+
+      setErrors(fieldErrors);
+      setNotification({ type: "error", message: errorMessage });
+    }
   };
+
   return (
     <>
       <Helmet title="Dashboard | Add Post" />
+
+      {notification && (
+        <NotificationCard
+          type={notification.type}
+          message={notification.message}
+          onClose={() => setNotification(null)}
+        />
+      )}
 
       <div
         className={`min-h-screen transition-all duration-300 ${
@@ -213,6 +271,7 @@ const AddPostPage = () => {
                   handleCategoryToggle={handleCategoryToggle}
                   setTagInput={setTagInput}
                   handleRemoveTag={handleRemoveTag}
+                  errors={errors}
                 />
               </div>
             </div>

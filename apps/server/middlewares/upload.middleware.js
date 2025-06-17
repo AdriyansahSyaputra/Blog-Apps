@@ -5,17 +5,6 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Lokasi penyimpanan file
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, "../uploads/img/")); 
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
-  },
-});
-
 // File validation
 const fileFilter = (req, file, cb) => {
   const allowedTypes = [".jpg", ".jpeg", ".png"];
@@ -36,10 +25,25 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-const upload = multer({
-  storage,
-  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
-  fileFilter,
-});
+// Fungsi pembuat multer upload sesuai folder tujuan
+const createUpload = (subFolder) => {
+  const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      const uploadPath = path.join(__dirname, `../uploads/img/${subFolder}`);
+      cb(null, uploadPath);
+    },
+    filename: function (req, file, cb) {
+      const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+      cb(null, uniqueSuffix + path.extname(file.originalname));
+    },
+  });
 
-export default upload;
+  return multer({
+    storage,
+    limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
+    fileFilter,
+  });
+};
+
+export const uploadThumbnail = createUpload("thumbnails");
+export const uploadProfile = createUpload("profile");
