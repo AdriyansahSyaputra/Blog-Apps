@@ -7,6 +7,7 @@ import {
   getCurrentUser,
   submitAuthorRequest,
 } from "../controllers/user.controller.js";
+import { getAllPosts, getPostBySlug } from "../controllers/post.controller.js";
 import { authorRequestValidator } from "../validators/authorRequest.validator.js";
 import { validateRequest } from "../middlewares/validate.middleware.js";
 
@@ -22,5 +23,11 @@ router.post(
   validateRequest,
   submitAuthorRequest
 );
+
+// Get All Posts
+router.get("/posts", getAllPosts);
+
+// Get Post By Slug
+router.get("/articles/:slug", getPostBySlug);
 
 export default router;

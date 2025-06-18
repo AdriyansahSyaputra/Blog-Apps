@@ -5,7 +5,7 @@ const AuthorMetaInfo = ({ darkMode, article }) => {
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-6 border-t border-b border-gray-200 dark:border-gray-700">
       <div className="flex items-center gap-4">
         <img
-          src={article.author.avatar}
+          src={`${import.meta.env.VITE_BASE_URL}/uploads/img/profile/${article.author.avatar}`}
           alt={article.author.name}
           className="w-12 h-12 rounded-full object-cover"
         />
@@ -27,15 +27,15 @@ const AuthorMetaInfo = ({ darkMode, article }) => {
           >
             <div className="flex items-center gap-1">
               <Calendar size={14} />
-              {article.publishDate}
+              {article.createdAt}
             </div>
             <div className="flex items-center gap-1">
               <Clock size={14} />
-              {article.readTime}
+              15
             </div>
             <div className="flex items-center gap-1">
               <Eye size={14} />
-              {article.views} views
+              512 views
             </div>
           </div>
         </div>

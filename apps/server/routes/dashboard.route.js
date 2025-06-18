@@ -18,12 +18,21 @@ import {
   getAllCategories,
   deleteCategory,
 } from "../controllers/category.controller.js";
-import { createPost, getAllPosts, deletePost } from "../controllers/post.controller.js";
-import { uploadThumbnail, uploadProfile } from "../middlewares/upload.middleware.js";
+import {
+  createPost,
+  getAllPosts,
+  deletePost,
+  updatePost,
+} from "../controllers/post.controller.js";
+import {
+  uploadThumbnail,
+  uploadProfile,
+} from "../middlewares/upload.middleware.js";
 import { addUserValidator } from "../validators/addUser.validator.js";
 import { validateRequest } from "../middlewares/validate.middleware.js";
 import { updateUserValidator } from "../validators/updateUser.validator.js";
 import { postValidator } from "../validators/post.validator.js";
+import { parseFormDataFields } from "../middlewares/parsingDataForm.js";
 
 const router = express.Router();
 
@@ -127,13 +136,25 @@ router.post(
   createPost
 );
 
+// Update Post
+router.put(
+  "/posts/:id",
+  authenticateUser,
+  authorizeRoles("admin", "author"),
+  uploadThumbnail.single("featuredImage"),
+  parseFormDataFields,
+  postValidator,
+  validateRequest,
+  updatePost
+);
+
 // Get All Posts
 router.get(
   "/posts",
   authenticateUser,
   authorizeRoles("admin", "author"),
   getAllPosts
-)
+);
 
 // Delete Post
 router.delete(

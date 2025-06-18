@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Calendar, Heart, MessageCircle, Image, MoreHorizontal, Tag, Eye } from "lucide-react";
 import PostActionMenu from "./PostActionMenu";
 
-const PostCard = ({ post, darkMode, onDelete }) => {
+const PostCard = ({ post, darkMode, onDelete, onEdit }) => {
   const [showActions, setShowActions] = useState(false);
 
   const statusColors = {
@@ -32,7 +32,7 @@ const PostCard = ({ post, darkMode, onDelete }) => {
           >
             {post.featuredImage ? (
               <img
-                src={`${import.meta.env.VITE_BASE_URL}${post.featuredImage}`}
+                src={`${import.meta.env.VITE_BASE_URL}/uploads/img/thumbnails/${post.featuredImage}`}
                 alt={post.title}
                 className="w-full h-full object-cover"
               />
@@ -80,7 +80,7 @@ const PostCard = ({ post, darkMode, onDelete }) => {
             darkMode={darkMode}
             isOpen={showActions}
             onClose={() => setShowActions(false)}
-            onEdit={() => console.log("Edit:", post.id)}
+            onEdit={() => onEdit(post)}
             onDelete={() => onDelete(post._id)}
             onView={() => console.log("View:", post.id)}
           />

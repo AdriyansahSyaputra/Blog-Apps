@@ -149,7 +149,7 @@ const UserTable = ({ users, darkMode, handleDeleteUser, handleEditUser }) => {
                 <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center mr-3">
                   {user.avatar ? (
                     <img
-                      src={`${import.meta.env.VITE_BASE_URL}/uploads/img/${user.avatar}`}
+                      src={`${import.meta.env.VITE_BASE_URL}/uploads/img/profile/${user.avatar}`}
                       alt={user.name}
                       className="w-full h-full rounded-full object-cover"
                     />

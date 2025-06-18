@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import Navbar from "../../components/Templates/client/Navbar";
 import Footer from "../../components/Templates/client/Footer";
@@ -7,12 +7,19 @@ import ArticleFooter from "../../components/Layouts/client/ArticleReader/Article
 import AuthorMetaInfo from "../../components/Layouts/client/ArticleReader/AuthorMetaInfo";
 import CategoryTags from "../../components/Layouts/client/ArticleReader/CategoryTags";
 import NavArticle from "../../components/Layouts/client/ArticleReader/NavArticle";
+import axios from "axios";
+import { useParams } from "react-router-dom";
+import { extractTextFromPTags } from "../../utils/sanitizeUtils";
 
 const ArticleReaderPage = () => {
   const { darkMode, toggleTheme } = useTheme();
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [likes, setLikes] = useState(1247);
+  const [article, setArticle] = useState(null);
+  const paragraphs = extractTextFromPTags(article?.content || "");
+
+  const { slug } = useParams();
 
   const toggleBookmark = () => {
     setIsBookmarked(!isBookmarked);
@@ -23,60 +30,22 @@ const ArticleReaderPage = () => {
     setLikes(isLiked ? likes - 1 : likes + 1);
   };
 
-  const article = {
-    title:
-      "The Future of Artificial Intelligence: Transforming Industries and Everyday Life",
-    subtitle:
-      "How AI is reshaping the way we work, learn, and interact with technology in the 21st century",
-    author: {
-      name: "Dr. Sarah Mitchell",
-      bio: "AI Researcher & Technology Writer",
-      avatar:
-        "https://images.unsplash.com/photo-1494790108755-2616c364cca6?w=100&h=100&fit=crop&crop=face",
-    },
-    publishDate: "March 15, 2024",
-    readTime: "8 min read",
-    views: "12.5K",
-    category: "Technology",
-    tags: ["AI", "Machine Learning", "Future Tech", "Innovation"],
-    content: `
-      Artificial Intelligence has evolved from a concept in science fiction to a transformative force that's reshaping every aspect of our daily lives. As we stand at the precipice of an AI-driven future, it's crucial to understand how this technology is not just changing industries, but fundamentally altering the way we interact with the world around us.
+  useEffect(() => {
+    const fetchArticle = async () => {
+      try {
+        const res = await axios.get(`/api/client/articles/${slug}`);
+        setArticle(res.data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
 
-      ## The Current State of AI
+    if (slug) fetchArticle();
+  }, [slug]);
 
-      Today's AI landscape is vastly different from what we imagined just a decade ago. Machine learning algorithms now power everything from our social media feeds to autonomous vehicles, creating an interconnected web of intelligent systems that learn and adapt in real-time.
-
-      The democratization of AI tools has accelerated innovation across sectors. Small startups can now access the same powerful AI capabilities that were once exclusive to tech giants, leveling the playing field and fostering unprecedented creativity and problem-solving.
-
-      ## Transforming Industries
-
-      ### Healthcare Revolution
-      
-      In healthcare, AI is revolutionizing diagnosis and treatment. Advanced imaging systems can detect cancers earlier than human radiologists, while predictive algorithms help hospitals manage resources more efficiently. Personalized medicine, powered by AI analysis of genetic data, is becoming a reality for millions of patients worldwide.
-
-      ### Education Reimagined
-      
-      The education sector is experiencing a paradigm shift with AI-powered personalized learning platforms. These systems adapt to individual learning styles, providing customized curricula that maximize student engagement and comprehension. Virtual tutors are available 24/7, making quality education more accessible than ever before.
-
-      ### Financial Services Evolution
-      
-      Financial institutions are leveraging AI for fraud detection, risk assessment, and algorithmic trading. Robo-advisors are democratizing investment advice, while blockchain and AI integration is creating new possibilities for secure, automated financial transactions.
-
-      ## The Human Element
-
-      Despite AI's rapid advancement, the human element remains irreplaceable. The most successful AI implementations are those that augment human capabilities rather than replace them entirely. This symbiotic relationship between human creativity and AI efficiency is creating new job categories and enhancing existing roles.
-
-      ## Challenges and Considerations
-
-      As we embrace AI's potential, we must also address its challenges. Data privacy, algorithmic bias, and the ethical implications of AI decision-making require careful consideration and robust governance frameworks. The goal is to harness AI's power while maintaining human agency and societal values.
-
-      ## Looking Ahead
-
-      The future of AI is not predetermined. It will be shaped by the choices we make today regarding research priorities, regulatory frameworks, and ethical guidelines. By fostering responsible AI development, we can ensure that this powerful technology serves humanity's best interests while opening new frontiers of innovation and discovery.
-
-      As we continue to integrate AI into our lives, one thing is certain: the future will be defined by our ability to balance technological advancement with human wisdom, creating a world where AI enhances rather than diminishes our shared humanity.
-    `,
-  };
+  if (!article) {
+    return <p>Loading artikel...</p>;
+  }
 
   return (
     <>
@@ -122,7 +91,7 @@ const ArticleReaderPage = () => {
                 darkMode ? "text-gray-300" : "text-gray-600"
               }`}
             >
-              {article.subtitle}
+              {article.excerpt}
             </p>
 
             {/* Author & Meta Info */}
@@ -142,7 +111,7 @@ const ArticleReaderPage = () => {
                   : "prose-headings:text-gray-800 prose-p:text-gray-700 prose-strong:text-gray-900 prose-a:text-blue-600"
               }`}
             >
-              {article.content.split("\n\n").map((paragraph, index) => {
+              {paragraphs.map((paragraph, index) => {
                 if (paragraph.startsWith("##")) {
                   return (
                     <h2
@@ -165,7 +134,7 @@ const ArticleReaderPage = () => {
                       {paragraph.replace("### ", "")}
                     </h3>
                   );
-                } else if (paragraph.trim()) {
+                } else {
                   return (
                     <p
                       key={index}
@@ -177,7 +146,6 @@ const ArticleReaderPage = () => {
                     </p>
                   );
                 }
-                return null;
               })}
             </div>
           </article>

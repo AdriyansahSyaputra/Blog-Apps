@@ -5,13 +5,14 @@ import {
   MessageSquare,
   TrendingUp,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const ArticlesSection = ({ darkMode, articles }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {articles.map((article) => (
         <article
-          key={article.id}
+          key={article._id}
           className={`rounded-xl overflow-hidden transition-all duration-300 ${
             darkMode
               ? "bg-gray-800 hover:bg-gray-700"
@@ -20,7 +21,13 @@ const ArticlesSection = ({ darkMode, articles }) => {
         >
           <div
             className={`h-48 ${darkMode ? "bg-gray-700" : "bg-gray-100"}`}
-          ></div>
+          >
+            <img
+              src={`${import.meta.env.VITE_BASE_URL}/uploads/img/thumbnails/${article.featuredImage}`}
+              alt={article.title}
+              className="w-full h-full object-cover"
+            />
+          </div>
           <div className="p-6">
             <div className="flex items-center justify-between mb-3">
               <span
@@ -30,7 +37,7 @@ const ArticlesSection = ({ darkMode, articles }) => {
                     : "bg-indigo-100 text-indigo-600"
                 }`}
               >
-                {article.category}
+                <span>{article.categories[0]?.name || "Tanpa Kategori"}</span>
               </span>
               <div className="flex items-center space-x-3">
                 {article.isTrending && (
@@ -84,25 +91,25 @@ const ArticlesSection = ({ darkMode, articles }) => {
                     darkMode ? "text-gray-400" : "text-gray-500"
                   }`}
                 >
-                  <Heart className="mr-1 h-3 w-3" /> {article.likes}
+                  <Heart className="mr-1 h-3 w-3" /> 521
                 </span>
                 <span
                   className={`flex items-center text-xs ${
                     darkMode ? "text-gray-400" : "text-gray-500"
                   }`}
                 >
-                  <MessageSquare className="mr-1 h-3 w-3" /> {article.comments}
+                  <MessageSquare className="mr-1 h-3 w-3" /> 15
                 </span>
                 <span
                   className={`flex items-center text-xs ${
                     darkMode ? "text-gray-400" : "text-gray-500"
                   }`}
                 >
-                  <Clock className="mr-1 h-3 w-3" /> {article.readTime}
+                  <Clock className="mr-1 h-3 w-3" /> 15 min
                 </span>
               </div>
-              <a
-                href="#"
+              <Link
+                to={`/articles/${article.slug}`}
                 className={`text-sm font-medium ${
                   darkMode
                     ? "text-indigo-400 hover:text-indigo-300"
@@ -110,7 +117,7 @@ const ArticlesSection = ({ darkMode, articles }) => {
                 } transition-colors duration-200`}
               >
                 Read more
-              </a>
+              </Link>
             </div>
           </div>
         </article>

@@ -11,6 +11,8 @@ import {
   Search,
   Filter,
   ChevronDown,
+  Check,
+  Calendar,
 } from "lucide-react";
 import PostCard from "../../components/Layouts/dashboard/Post/PostCard";
 import FilterDropdown from "../../components/Layouts/dashboard/Post/FilterDropdown";
@@ -19,6 +21,7 @@ import NotificationCard from "../../components/Fragments/NotificationCard";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import ModalFormUpdatePost from "../../components/Fragments/ModalFormUpdatePost";
 
 const Post = () => {
   const { darkMode, toggleTheme } = useTheme();
@@ -29,6 +32,24 @@ const Post = () => {
   const [showFilter, setShowFilter] = useState(false);
   const [notification, setNotification] = useState(null);
   const [posts, setPosts] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [tagInput, setTagInput] = useState("");
+  const [previewImage, setPreviewImage] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [errors, setErrors] = useState({});
+  const [formData, setFormData] = useState({
+    title: "",
+    slug: "",
+    slugManuallyEdited: false,
+    content: "",
+    excerpt: "",
+    status: "draft",
+    publishDate: "",
+    publishTime: "",
+    featuredImage: null,
+    categories: [],
+    tags: [],
+  });
 
   // Sample data
   const stats = [
@@ -37,6 +58,103 @@ const Post = () => {
     { icon: Clock, title: "Drafts", value: "18", change: -2 },
     { icon: Star, title: "Featured", value: "24", change: 15 },
   ];
+
+  const statusOptions = [
+    { value: "draft", label: "Draft", icon: FileText, color: "text-gray-500" },
+    {
+      value: "published",
+      label: "Publish Now",
+      icon: Check,
+      color: "text-green-500",
+    },
+    {
+      value: "scheduled",
+      label: "Schedule",
+      icon: Calendar,
+      color: "text-blue-500",
+    },
+  ];
+
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get("/api/dashboard/categories", {
+        withCredentials: true,
+      });
+      setCategories(response.data);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
+
+  // Load semua data category saat pertama kali
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const handleInputChange = (field, value) => {
+    setFormData((prev) => {
+      const updated = {
+        ...prev,
+        [field]: value,
+      };
+
+      if (field === "title" && (!prev.slugManuallyEdited || !prev.slug)) {
+        const slug = value
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/(^-|-$)/g, "");
+
+        updated.slug = slug;
+      }
+
+      return updated;
+    });
+  };
+
+  const handleCategoryToggle = (categoryId) => {
+    setFormData((prev) => ({
+      ...prev,
+      categories: prev.categories.includes(categoryId)
+        ? prev.categories.filter((id) => id !== categoryId)
+        : [...prev.categories, categoryId],
+    }));
+  };
+
+  const handleAddTag = (e) => {
+    if (e.key === "Enter" && tagInput.trim()) {
+      e.preventDefault();
+      if (!formData.tags.includes(tagInput.trim())) {
+        setFormData((prev) => ({
+          ...prev,
+          tags: [...prev.tags, tagInput.trim()],
+        }));
+      }
+      setTagInput("");
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove) => {
+    setFormData((prev) => ({
+      ...prev,
+      tags: prev.tags.filter((tag) => tag !== tagToRemove),
+    }));
+  };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData((prev) => ({
+        ...prev,
+        featuredImage: file,
+      }));
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setPreviewImage(e.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   // Fetch posts from the API
   const fetchPosts = async () => {
@@ -53,6 +171,83 @@ const Post = () => {
   useEffect(() => {
     fetchPosts();
   }, []);
+
+  // Handle Update Post
+  const handleUpdatePost = async () => {
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("title", formData.title);
+      formDataToSend.append("slug", formData.slug);
+      formDataToSend.append("excerpt", formData.excerpt);
+      formDataToSend.append("content", formData.content);
+      formDataToSend.append("status", formData.status);
+      formDataToSend.append("publishDate", formData.publishDate);
+      formDataToSend.append("publishTime", formData.publishTime);
+      formDataToSend.append("categories", JSON.stringify(formData.categories));
+      formDataToSend.append("tags", JSON.stringify(formData.tags));
+
+      if (formData.featuredImage instanceof File) {
+        formDataToSend.append("featuredImage", formData.featuredImage);
+      }
+
+      await axios.put(`/api/dashboard/posts/${formData._id}`, formDataToSend, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      fetchPosts();
+
+      setNotification({
+        type: "success",
+        message: "Post updated successfully.",
+      });
+
+      setIsModalOpen(false);
+    } catch (err) {
+      let errorMessage = "Network error. Please check your connection.";
+      let fieldErrors = {};
+
+      if (err.response) {
+        // Error dari server (4xx/5xx)
+        if (err.response.data?.errors) {
+          fieldErrors = err.response.data.errors;
+          errorMessage = "Please fix the form errors";
+        } else {
+          errorMessage = err.response.data?.message || errorMessage;
+        }
+      } else if (err.request) {
+        // Request dibuat tapi tidak ada response (timeout, dll)
+        errorMessage = "Server is not responding. Please try later.";
+      }
+
+      setErrors(fieldErrors);
+      setNotification({ type: "error", message: errorMessage });
+    }
+  };
+
+  // Handle Edit Post
+  const handleEditPost = (post) => {
+    setFormData({
+      _id: post._id,
+      title: post.title,
+      slug: post.slug,
+      slugManuallyEdited: post.slugManuallyEdited,
+      content: post.content,
+      excerpt: post.excerpt,
+      status: post.status,
+      publishDate: post.publishDate,
+      publishTime: post.publishTime,
+      featuredImage: post.featuredImage,
+      categories: post.categories.map((cat) =>
+        typeof cat === "object" ? cat._id : cat
+      ),
+      tags: post.tags,
+    });
+    setPreviewImage(post.featuredImage || null);
+    setIsModalOpen(true);
+  };
 
   // handle Delete Post
   const handleDeletePost = async (postId) => {
@@ -235,6 +430,7 @@ const Post = () => {
                   post={post}
                   darkMode={darkMode}
                   onDelete={handleDeletePost}
+                  onEdit={handleEditPost}
                 />
               ))}
             </div>
@@ -256,6 +452,27 @@ const Post = () => {
           </main>
         </div>
       </div>
+
+      <ModalFormUpdatePost
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        darkMode={darkMode}
+        formData={formData}
+        handleInputChange={handleInputChange}
+        statusOptions={statusOptions}
+        previewImage={previewImage}
+        setPreviewImage={setPreviewImage}
+        setFormData={setFormData}
+        handleImageUpload={handleImageUpload}
+        handleAddTag={handleAddTag}
+        tagInput={tagInput}
+        categories={categories}
+        handleCategoryToggle={handleCategoryToggle}
+        setTagInput={setTagInput}
+        handleRemoveTag={handleRemoveTag}
+        errors={errors}
+        onSubmit={handleUpdatePost}
+      />
     </>
   );
 };

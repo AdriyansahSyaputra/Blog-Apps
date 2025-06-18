@@ -25,7 +25,7 @@ function App() {
         <Route path="/articles" element={<ArticlesPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/contact" element={<ContactPage />} />
-        <Route path="/articles/read" element={<ArticleReaderPage />} />
+        <Route path="/articles/:slug" element={<ArticleReaderPage />} />
         <Route path="/write-for-us" element={<AuthorRequestPage />} />
 
         {/* Dashboard Routes */}

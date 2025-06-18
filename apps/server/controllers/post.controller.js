@@ -22,9 +22,7 @@ export const createPost = async (req, res) => {
 
   try {
     // Simpan path file thumbnail jika ada upload
-    const featuredImage = req.file
-      ? `/uploads/img/thumbnails/${req.file.filename}`
-      : null;
+    const featuredImage = req.file ? req.file.filename : null;
 
     // Validasi publish date & time untuk scheduled post
     let finalStatus = status;
@@ -122,5 +120,86 @@ export const deletePost = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Something went wrong." });
+  }
+};
+
+export const updatePost = async (req, res) => {
+  const {
+    title,
+    slug,
+    excerpt,
+    content,
+    status,
+    publishDate,
+    publishTime,
+    categories,
+    tags,
+  } = req.body;
+
+  try {
+    const post = await Post.findById(req.params.id);
+
+    if (!post) {
+      return res.status(404).json({ message: "Post not found." });
+    }
+
+    // Hapus thumbnail lama jika thumbnail baru diupload
+    if (req.file && post.featuredImage) {
+      const filePath = path.join(
+        __dirname,
+        "../uploads/img/thumbnails/",
+        post.featuredImage
+      );
+      fs.unlink(filePath, (err) => {
+        if (err) console.error("Gagal menghapus file:", err.message);
+      });
+    }
+
+    post.title = title;
+    post.slug = slug;
+    post.excerpt = excerpt;
+    post.content = content;
+    post.status = status;
+    post.publishDate = publishDate;
+    post.publishTime = publishTime;
+    post.categories = categories;
+    post.tags = tags;
+
+    if (req.file) {
+      post.featuredImage = req.file.filename;
+    }
+
+    await post.save();
+    return res.status(200).json({ message: "Post updated successfully." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Something went wrong." });
+  }
+};
+
+// Ambil data post berdasarkan slug
+export const getPostBySlug = async (req, res) => {
+  try {
+    const post = await Post.findOne({ slug: req.params.slug })
+      .populate("author", "name avatar bio")
+      .populate("categories", "name")
+      .lean();
+
+    if (!post) {
+      return res.status(404).json({ message: "Post not found." });
+    }
+
+    // Format tanggal sebelum sampai ke FE
+    const formattedPost = {
+      ...post,
+      createdAt: dayjs(post.createdAt).format("DD MMM YYYY"),
+      updatedAt: dayjs(post.updatedAt).format("DD MMM YYYY"),
+    };
+    
+
+    return res.status(200).json(formattedPost);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "Something went wrong." });
   }
 };

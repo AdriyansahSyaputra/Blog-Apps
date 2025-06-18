@@ -1,16 +1,7 @@
 import { UserCircle, Settings, LogOut } from "lucide-react";
-import axios from "axios";
 
-const ProfileDropdown = ({ darkMode, isOpen, onClose }) => {
+const ProfileDropdown = ({ darkMode, isOpen, onLogout }) => {
   if (!isOpen) return null;
-
-  const handleLogout = () => {
-    axios.post("/api/auth/logout").then(() => {
-      window.location.href = "/auth";
-    });
-
-    onClose();
-  };
 
   return (
     <div
@@ -46,7 +37,7 @@ const ProfileDropdown = ({ darkMode, isOpen, onClose }) => {
         <div className="my-2 border-t border-gray-200/20"></div>
 
         <button
-          onClick={handleLogout}
+          onClick={onLogout}
           className={`w-full flex items-center px-4 py-3 text-left transition-colors duration-200 ${
             darkMode
               ? "hover:bg-red-900/20 text-red-400 hover:text-red-300"

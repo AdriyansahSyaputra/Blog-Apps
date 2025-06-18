@@ -9,91 +9,25 @@ import SortingSection from "../../components/Layouts/client/Articles/SortingSect
 import ArticlesSection from "../../components/Layouts/client/Articles/ArticlesSection";
 import Pagination from "../../components/Layouts/client/Articles/Pagination";
 import HeroSection from "../../components/Layouts/client/Articles/HeroSection";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 const ArticlesPage = () => {
   const { darkMode } = useTheme();
+  const [articles, setArticles] = useState([]);
 
-  // Sample articles data
-  const articles = [
-    {
-      id: 1,
-      title: "Advanced React Patterns for Modern Applications",
-      excerpt:
-        "Learn about compound components, render props, and hooks patterns to build flexible React applications.",
-      category: "React",
-      readTime: "12 min read",
-      date: "June 15, 2024",
-      likes: 245,
-      comments: 42,
-      isBookmarked: true,
-      isTrending: true,
-    },
-    {
-      id: 2,
-      title: "The Complete Guide to CSS Grid Layout",
-      excerpt:
-        "Master CSS Grid with practical examples and real-world use cases for modern web layouts.",
-      category: "CSS",
-      readTime: "18 min read",
-      date: "June 12, 2024",
-      likes: 189,
-      comments: 31,
-      isBookmarked: false,
-      isTrending: true,
-    },
-    {
-      id: 3,
-      title: "TypeScript Best Practices for Large-Scale Applications",
-      excerpt:
-        "Essential patterns and strategies for maintaining type safety in complex codebases.",
-      category: "TypeScript",
-      readTime: "15 min read",
-      date: "June 10, 2024",
-      likes: 156,
-      comments: 28,
-      isBookmarked: true,
-      isTrending: false,
-    },
-    {
-      id: 4,
-      title: "Building Accessible Web Applications",
-      excerpt:
-        "Comprehensive guide to implementing WCAG standards in your frontend projects.",
-      category: "Accessibility",
-      readTime: "20 min read",
-      date: "June 8, 2024",
-      likes: 132,
-      comments: 19,
-      isBookmarked: false,
-      isTrending: false,
-    },
-    {
-      id: 5,
-      title: "State Management Solutions in 2024",
-      excerpt:
-        "Comparing Redux, Zustand, Jotai, and other state management libraries.",
-      category: "JavaScript",
-      readTime: "14 min read",
-      date: "June 5, 2024",
-      likes: 201,
-      comments: 37,
-      isBookmarked: true,
-      isTrending: true,
-    },
-    {
-      id: 6,
-      title: "Optimizing Next.js Applications for Performance",
-      excerpt:
-        "Practical techniques to improve your Next.js app's speed and user experience.",
-      category: "Next.js",
-      readTime: "16 min read",
-      date: "June 3, 2024",
-      likes: 178,
-      comments: 24,
-      isBookmarked: false,
-      isTrending: false,
-    },
-  ];
+  const fetchArticles = async () => {
+    try {
+      const response = await axios.get("/api/client/posts");
+      setArticles(response.data);
+    } catch (error) {
+      console.error("Error fetching articles:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchArticles();
+  }, []);
 
   const popularTags = [
     { name: "React", count: 128 },
