@@ -15,9 +15,12 @@ const ArticleReaderPage = () => {
   const { darkMode, toggleTheme } = useTheme();
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
-  const [likes, setLikes] = useState(1247);
+  const [likes, setLikes] = useState(0);
   const [article, setArticle] = useState(null);
   const paragraphs = extractTextFromPTags(article?.content || "");
+  const [commentText, setCommentText] = useState("");
+  const [comments, setComments] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
 
   const { slug } = useParams();
 
@@ -25,16 +28,26 @@ const ArticleReaderPage = () => {
     setIsBookmarked(!isBookmarked);
   };
 
-  const toggleLike = () => {
-    setIsLiked(!isLiked);
-    setLikes(isLiked ? likes - 1 : likes + 1);
+  const toggleLike = async (postId) => {
+    try {
+      const res = await axios.post(`/api/client/posts/${postId}/like`, null, {
+        withCredentials: true,
+      });
+      setIsLiked(res.data.liked);
+      setLikes(res.data.totalLikes);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   useEffect(() => {
     const fetchArticle = async () => {
       try {
         const res = await axios.get(`/api/client/articles/${slug}`);
+
         setArticle(res.data);
+        setLikes(res.data.totalLikes);
+        setIsLiked(res.data.liked);
       } catch (err) {
         console.log(err);
       }
@@ -42,6 +55,74 @@ const ArticleReaderPage = () => {
 
     if (slug) fetchArticle();
   }, [slug]);
+
+  // Handle add comment
+  const handleAddComment = async (comment) => {
+    try {
+      await axios.post(`/api/client/comment`, comment, {
+        withCredentials: true,
+      });
+
+      setCommentText("");
+
+      fetchComments();
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const fetchComments = async () => {
+    try {
+      const res = await axios.get("/api/client/comments", {
+        params: {
+          postId: article._id,
+          parent: null,
+        },
+        withCredentials: true,
+      });
+
+      setComments(res.data);
+    } catch (err) {
+      console.log("Gagal mengambil komentar:", err);
+    }
+  };
+
+  const fetchRepliesByCommentId = async (commentId) => {
+    try {
+      const res = await axios.get("/api/client/comments", {
+        params: {
+          postId: article._id,
+          parent: commentId,
+        },
+        withCredentials: true,
+      });
+
+      return res.data;
+    } catch (err) {
+      console.log("Gagal mengambil balasan komentar:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (article && article._id) {
+      fetchComments();
+    }
+  }, [article]);
+
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const res = await axios.get("/api/client/me", {
+          withCredentials: true,
+        });
+        setCurrentUser(res.data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    fetchCurrentUser();
+  }, []);
 
   if (!article) {
     return <p>Loading artikel...</p>;
@@ -155,7 +236,14 @@ const ArticleReaderPage = () => {
             darkMode={darkMode}
             isLiked={isLiked}
             likes={likes}
-            toggleLike={toggleLike}
+            toggleLike={() => toggleLike(article._id)}
+            handleAddComment={handleAddComment}
+            commentText={commentText}
+            setCommentText={setCommentText}
+            article={article}
+            comments={comments}
+            currentUser={currentUser}
+            fetchRepliesByCommentId={fetchRepliesByCommentId}
           />
         </div>
       </main>

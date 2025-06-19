@@ -20,6 +20,25 @@ export const authenticateUser = (req, res, next) => {
   }
 };
 
+export const optionalAuth = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  const tokenFromHeader = authHeader && authHeader.split(" ")[1];
+  const tokenFromCookie = req.cookies.token;
+
+  const token = tokenFromHeader || tokenFromCookie;
+
+  if (!token) return next();
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+  } catch (err) {
+    // ignore error, user tetap anonym
+  }
+
+  next();
+};
+
 export const authorizeRoles =
   (...allowedRoles) =>
   (req, res, next) => {

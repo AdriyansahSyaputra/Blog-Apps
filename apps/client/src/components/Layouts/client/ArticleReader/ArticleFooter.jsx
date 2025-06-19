@@ -5,8 +5,21 @@ import {
   Share2,
   Coffee,
 } from "lucide-react";
+import CommentArticle from "./CommentArticle";
 
-const ArticleFooter = ({ darkMode, isLiked, likes, toggleLike }) => {
+const ArticleFooter = ({
+  darkMode,
+  isLiked,
+  likes,
+  toggleLike,
+  handleAddComment,
+  commentText,
+  setCommentText,
+  article,
+  comments,
+  currentUser,
+  fetchRepliesByCommentId,
+}) => {
   return (
     <div
       className={`mt-12 pt-8 border-t transition-colors duration-300 ${
@@ -86,25 +99,16 @@ const ArticleFooter = ({ darkMode, isLiked, likes, toggleLike }) => {
       </div>
 
       {/* Comments Section */}
-      <div id="comments-section" className="mt-12">
-        <h3
-          className={`text-xl font-semibold mb-6 ${
-            darkMode ? "text-gray-200" : "text-gray-800"
-          }`}
-        >
-          Comments (348)
-        </h3>
-        {/* Add your comments list component here */}
-        <div
-          className={`p-6 rounded-lg transition-colors duration-300 ${
-            darkMode ? "bg-gray-800" : "bg-gray-50"
-          }`}
-        >
-          <p className={darkMode ? "text-gray-300" : "text-gray-600"}>
-            Comments section would be displayed here...
-          </p>
-        </div>
-      </div>
+      <CommentArticle
+        darkMode={darkMode}
+        handleAddComment={handleAddComment}
+        commentText={commentText}
+        setCommentText={setCommentText}
+        article={article}
+        comments={comments}
+        currentUser={currentUser}
+        fetchRepliesByCommentId={fetchRepliesByCommentId}
+      />
 
       {/* Related Actions */}
       <div className="flex flex-wrap items-center justify-between gap-4 mt-8">

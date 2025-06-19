@@ -189,13 +189,25 @@ export const getPostBySlug = async (req, res) => {
       return res.status(404).json({ message: "Post not found." });
     }
 
+    // Hitung jumlah like
+    const totalLikes = post.likes?.length || 0;
+
+    // Cek apakah user login sudah like
+    let liked = false;
+    if (req.user) {
+      liked = post.likes?.some(
+        (id) => id.toString() === req.user.id.toString()
+      );
+    }
+
     // Format tanggal sebelum sampai ke FE
     const formattedPost = {
       ...post,
       createdAt: dayjs(post.createdAt).format("DD MMM YYYY"),
       updatedAt: dayjs(post.updatedAt).format("DD MMM YYYY"),
+      totalLikes,
+      liked,
     };
-    
 
     return res.status(200).json(formattedPost);
   } catch (err) {
