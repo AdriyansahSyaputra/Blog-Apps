@@ -15,32 +15,51 @@ import AddUserPage from "./pages/dashboard/AddUserPage";
 import ArticleReaderPage from "./pages/client/ArticleReaderPage";
 import AuthorRequestPage from "./pages/client/AuthorRequestPage";
 import UserRequestsPage from "./pages/dashboard/UserRequestPage";
+import Error404Page from "./pages/Error404Page";
+import Error401Page from "./pages/Error401Page";
+import ProtectedRoute from "./components/Routes/ProtectedRoute";
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Client Routes */}
+        {/* Client Routes / Public Routes */}
         <Route path="/" element={<HomePage />} />
         <Route path="/articles" element={<ArticlesPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/articles/:slug" element={<ArticleReaderPage />} />
-        <Route path="/write-for-us" element={<AuthorRequestPage />} />
 
-        {/* Dashboard Routes */}
-        <Route path="/dashboard" element={<HomeDashboardPage />} />
-        <Route path="/dashboard/posts" element={<PostPage />} />
-        <Route path="/dashboard/users" element={<UserPage />} />
-        <Route path="/dashboard/categories" element={<CategoriesPage />} />
-        <Route path="/dashboard/comments" element={<CommentPage />} />
-        <Route path="/dashboard/settings" element={<SettingsPage />} />
-        <Route path="/dashboard/posts/new" element={<AddPostPage />} />
-        <Route path="/dashboard/users/new" element={<AddUserPage />} />
-        <Route path="/dashboard/authors/request" element={<UserRequestsPage />} />
+        <Route element={<ProtectedRoute allowedRoles={["viewer"]} />}>
+          <Route path="/write-for-us" element={<AuthorRequestPage />} />
+        </Route>
+
+        {/* Dashboard Routes / Private Routes */}
+        <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+          <Route path="/dashboard" element={<HomeDashboardPage />} />
+          <Route path="/dashboard/users" element={<UserPage />} />
+          <Route path="/dashboard/categories" element={<CategoriesPage />} />
+          <Route path="/dashboard/comments" element={<CommentPage />} />
+          <Route path="/dashboard/settings" element={<SettingsPage />} />
+          <Route path="/dashboard/users/new" element={<AddUserPage />} />
+          <Route
+            path="/dashboard/authors/request"
+            element={<UserRequestsPage />}
+          />
+        </Route>
+
+        {/* Only Author & Admin Routes */}
+        <Route element={<ProtectedRoute allowedRoles={["author", "admin"]} />}>
+          <Route path="/dashboard/posts" element={<PostPage />} />
+          <Route path="/dashboard/posts/new" element={<AddPostPage />} />
+        </Route>
 
         {/* Auth Routes */}
         <Route path="/auth" element={<AuthPage />} />
+
+        {/* Error Routes */}
+        <Route path="*" element={<Error404Page />} />
+        <Route path="/unauthorized" element={<Error401Page />} />
       </Routes>
     </Router>
   );
