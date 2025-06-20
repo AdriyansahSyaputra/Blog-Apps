@@ -25,16 +25,24 @@ export const createComment = async (req, res) => {
 
 export const getCommentsByPost = async (req, res) => {
   try {
-    const { postId, parent } = req.query;
+    const { postId, parent = null, limit = 5, page = 1 } = req.query;
+    const parsedParent = parent === "null" ? null : parent;
 
     const comments = await Comment.find({
       post: postId,
-      parent: parent || null,
+      parent: parsedParent,
     })
       .populate("user", "username avatar")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .limit(Number(limit))
+      .skip((Number(page) - 1) * Number(limit));
 
-    return res.status(200).json(comments);
+      const total = await Comment.countDocuments({ post: postId, parent: parsedParent });
+
+      res.status(200).json({
+        comments,
+        total,
+      });
   } catch (err) {
     console.log(err);
     return res.status(500).json({ message: "Something went wrong." });

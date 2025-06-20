@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Helmet } from "react-helmet-async";
 import Navbar from "../../components/Templates/client/Navbar";
 import Footer from "../../components/Templates/client/Footer";
@@ -10,6 +10,7 @@ import NavArticle from "../../components/Layouts/client/ArticleReader/NavArticle
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { extractTextFromPTags } from "../../utils/sanitizeUtils";
+import LoadingAnimation from "../../components/Fragments/LoadingAnimation";
 
 const ArticleReaderPage = () => {
   const { darkMode, toggleTheme } = useTheme();
@@ -21,6 +22,8 @@ const ArticleReaderPage = () => {
   const [commentText, setCommentText] = useState("");
   const [comments, setComments] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
+  const [hasMoreComments, setHasMoreComments] = useState(true);
+  const [totalComments, setTotalComments] = useState(0);
 
   const { slug } = useParams();
 
@@ -28,33 +31,32 @@ const ArticleReaderPage = () => {
     setIsBookmarked(!isBookmarked);
   };
 
-  const toggleLike = async (postId) => {
+  const fetchArticle = useCallback(async () => {
     try {
-      const res = await axios.post(`/api/client/posts/${postId}/like`, null, {
-        withCredentials: true,
-      });
+      const res = await axios.get(`/api/client/articles/${slug}`);
+      setArticle(res.data);
+      setLikes(res.data.totalLikes);
+      setIsLiked(res.data.liked);
+    } catch (err) {
+      console.error("Gagal memuat artikel:", err);
+    }
+  }, [slug]);
+
+  const toggleLike = async () => {
+    try {
+      const res = await axios.post(
+        `/api/client/posts/${article._id}/like`,
+        null,
+        {
+          withCredentials: true,
+        }
+      );
       setIsLiked(res.data.liked);
       setLikes(res.data.totalLikes);
     } catch (err) {
-      console.log(err);
+      console.error("Gagal menyukai artikel:", err);
     }
   };
-
-  useEffect(() => {
-    const fetchArticle = async () => {
-      try {
-        const res = await axios.get(`/api/client/articles/${slug}`);
-
-        setArticle(res.data);
-        setLikes(res.data.totalLikes);
-        setIsLiked(res.data.liked);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-
-    if (slug) fetchArticle();
-  }, [slug]);
 
   // Handle add comment
   const handleAddComment = async (comment) => {
@@ -71,21 +73,36 @@ const ArticleReaderPage = () => {
     }
   };
 
-  const fetchComments = async () => {
-    try {
-      const res = await axios.get("/api/client/comments", {
-        params: {
-          postId: article._id,
-          parent: null,
-        },
-        withCredentials: true,
-      });
+  const fetchComments = useCallback(
+    async (page = 1, append = false) => {
+      try {
+        const res = await axios.get("/api/client/comments", {
+          params: {
+            postId: article?._id,
+            parent: null,
+            limit: 5,
+            page,
+          },
+          withCredentials: true,
+        });
 
-      setComments(res.data);
-    } catch (err) {
-      console.log("Gagal mengambil komentar:", err);
-    }
-  };
+        if (append) {
+          setComments((prev) => [...prev, ...res.data.comments]);
+        } else {
+          setComments(res.data.comments);
+        }
+
+        setTotalComments(res.data.total);
+
+        const total = res.data.total;
+        const loaded = page * 5;
+        setHasMoreComments(loaded < total);
+      } catch (err) {
+        console.error("Gagal mengambil komentar:", err);
+      }
+    },
+    [article?._id]
+  );
 
   const fetchRepliesByCommentId = async (commentId) => {
     try {
@@ -100,32 +117,40 @@ const ArticleReaderPage = () => {
       return res.data;
     } catch (err) {
       console.log("Gagal mengambil balasan komentar:", err);
+      return [];
     }
   };
 
-  useEffect(() => {
-    if (article && article._id) {
-      fetchComments();
+  const fetchCurrentUser = useCallback(async () => {
+    try {
+      const res = await axios.get("/api/client/me", {
+        withCredentials: true,
+      });
+      setCurrentUser(res.data);
+    } catch (err) {
+      console.error("Gagal mengambil user:", err);
     }
-  }, [article]);
-
-  useEffect(() => {
-    const fetchCurrentUser = async () => {
-      try {
-        const res = await axios.get("/api/client/me", {
-          withCredentials: true,
-        });
-        setCurrentUser(res.data);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-
-    fetchCurrentUser();
   }, []);
 
+  useEffect(() => {
+    if (slug) {
+      fetchArticle();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetchArticle]);
+
+  useEffect(() => {
+    if (article?._id) {
+      fetchComments();
+    }
+  }, [article?._id, fetchComments]);
+
+  useEffect(() => {
+    fetchCurrentUser();
+  }, [fetchCurrentUser]);
+
   if (!article) {
-    return <p>Loading artikel...</p>;
+    return <LoadingAnimation />;
   }
 
   return (
@@ -244,6 +269,9 @@ const ArticleReaderPage = () => {
             comments={comments}
             currentUser={currentUser}
             fetchRepliesByCommentId={fetchRepliesByCommentId}
+            hasMoreComments={hasMoreComments}
+            fetchComments={fetchComments}
+            totalComments={totalComments}
           />
         </div>
       </main>

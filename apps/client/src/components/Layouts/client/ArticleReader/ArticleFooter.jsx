@@ -19,6 +19,9 @@ const ArticleFooter = ({
   comments,
   currentUser,
   fetchRepliesByCommentId,
+  hasMoreComments,
+  fetchComments,
+  totalComments,
 }) => {
   return (
     <div
@@ -77,7 +80,7 @@ const ArticleFooter = ({
             size={18}
             className={darkMode ? "text-blue-400" : "text-blue-500"}
           />
-          <span className="font-medium">Comments (348)</span>
+          <span className="font-medium">Comments ({totalComments})</span>
         </button>
 
         <button
@@ -108,6 +111,9 @@ const ArticleFooter = ({
         comments={comments}
         currentUser={currentUser}
         fetchRepliesByCommentId={fetchRepliesByCommentId}
+        hasMoreComments={hasMoreComments}
+        fetchComments={fetchComments}
+        totalComments={totalComments}
       />
 
       {/* Related Actions */}
